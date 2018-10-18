@@ -21,9 +21,9 @@ class Lecture(models.Model):
     """
     A class which represents a model of lecture.
     """
-    LECTURE_REQUIRED = 1
-    LECTURE_OPTIONAL = 2
-    LECTURE_EXTRA = 3
+    LECTURE_REQUIRED = 0
+    LECTURE_OPTIONAL = 1
+    LECTURE_EXTRA = 2
 
     LECTURE_TYPE = (
         (LECTURE_REQUIRED, '전필'),
@@ -36,8 +36,6 @@ class Lecture(models.Model):
     type = models.IntegerField(choices=LECTURE_TYPE, default=LECTURE_REQUIRED)
     department = models.ForeignKey(Department, on_delete=models.CASCADE)
     professor = models.CharField(max_length=64)
-    start_time = models.TimeField()
-    end_time = models.TimeField()
 
     def __str__(self):
         return self.title
@@ -58,3 +56,27 @@ class Lecture(models.Model):
         :return: A QuerySet of lectures.
         """
         return Lecture.objects.filter(lecture_id=lecture_id)
+
+
+class LectureTime(models.Model):
+    """
+    Represents a time of lecture.
+    """
+    TIME_MONDAY = 0
+    TIME_TUESDAY = 1
+    TIME_WEDNESDAY = 2
+    TIME_THURSDAY = 3
+    TIME_FRIDAY = 4
+
+    TIME_DAYS = (
+        (TIME_MONDAY, '월요일'),
+        (TIME_TUESDAY, '화요일'),
+        (TIME_WEDNESDAY, '수요일'),
+        (TIME_THURSDAY, '목요일'),
+        (TIME_FRIDAY, '금요일'),
+    )
+
+    day = models.IntegerField(choices=TIME_DAYS, default=TIME_MONDAY)
+    start_time = models.TimeField()
+    end_time = models.TimeField()
+    lecture = models.ForeignKey(Lecture, on_delete=models.CASCADE)
