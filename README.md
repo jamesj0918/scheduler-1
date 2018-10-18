@@ -7,4 +7,4 @@ A lecture scheduler for university students. Built with Django 2.1.
 * Suggest a lecture based on user's information.
 
 ## License
-Licensed under the MIT License.
+Licensed under the [MIT License](https://github.com/pellstrike/scheduler/blob/master/LICENSE.md).
