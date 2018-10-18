@@ -1,3 +1,13 @@
 from django.contrib import admin
 
-# Register your models here.
+from .models import Schedule
+
+
+class ScheduleAdmin(admin.ModelAdmin):
+    list_display = (
+        'owner',
+        'get_number_of_lectures_in_schedule',
+    )
+
+
+admin.site.register(Schedule, ScheduleAdmin)
