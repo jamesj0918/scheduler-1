@@ -2,6 +2,9 @@ from django.db import models
 
 
 class Department(models.Model):
+    """
+    A class which represents a department of university.
+    """
     title = models.CharField(max_length=32)
 
     def __str__(self):
@@ -60,7 +63,7 @@ class Lecture(models.Model):
 
 class LectureTime(models.Model):
     """
-    Represents a time of lecture.
+    A class which represents a time of the lecture.
     """
     TIME_MONDAY = 0
     TIME_TUESDAY = 1
@@ -79,4 +82,11 @@ class LectureTime(models.Model):
     day = models.IntegerField(choices=TIME_DAYS, default=TIME_MONDAY)
     start_time = models.TimeField()
     end_time = models.TimeField()
-    lecture = models.ForeignKey(Lecture, on_delete=models.CASCADE)
+    lecture = models.ForeignKey(Lecture, null=True, on_delete=models.CASCADE)
+
+    def is_break(self):
+        """
+        Is the current object break time?
+        :return: Boolean of the result.
+        """
+        return self.lecture is None
