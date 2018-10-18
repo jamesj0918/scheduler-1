@@ -1,6 +1,11 @@
 from django.contrib import admin
 
-from .models import Lecture, Department
+from .models import Lecture, LectureTime, Department
+
+
+class LectureTimeInline(admin.TabularInline):
+    model = LectureTime
+    extra = 1
 
 
 class LectureAdmin(admin.ModelAdmin):
@@ -10,9 +15,10 @@ class LectureAdmin(admin.ModelAdmin):
         'type',
         'department',
         'professor',
-        'start_time',
-        'end_time',
     )
+    list_filter = ['type', 'department']
+    search_fields = ['title', 'lecture_id', 'professor']
+    inlines = [LectureTimeInline]
 
 
 class DepartmentAdmin(admin.ModelAdmin):
