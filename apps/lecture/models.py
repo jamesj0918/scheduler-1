@@ -86,7 +86,7 @@ class Lecture(models.Model):
     title = models.CharField(_('title'), max_length=64)
     type = models.IntegerField(_('lecture type'), choices=LECTURE_TYPE, default=LECTURE_REQUIRED)
     field = models.IntegerField(_('lecture field'), choices=FIELD_TYPE, default=FIELD_BASIC)
-    grade = models.IntegerField(_('grade point'), default=1)
+    grade = models.FloatField(_('grade point'), default=1)
     language = models.IntegerField(_('language'), choices=LANGUAGE_TYPE, default=LANGUAGE_KOR)
 
     department = models.ForeignKey(
