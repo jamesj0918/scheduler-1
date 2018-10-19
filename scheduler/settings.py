@@ -38,9 +38,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
 
-    'apps.user',
     'apps.lecture',
-    'apps.schedule',
 ]
 
 MIDDLEWARE = [
@@ -84,8 +82,6 @@ DATABASES = {
         'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
     }
 }
-
-AUTH_USER_MODEL = 'user.User'
 
 
 # Password validation
