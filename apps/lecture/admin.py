@@ -11,7 +11,7 @@ class LectureTimeInline(admin.TabularInline):
 class LectureAdmin(admin.ModelAdmin):
     list_display = (
         'title',
-        'lecture_id',
+        'uuid',
         'type',
         'department',
         'professor',
@@ -28,5 +28,5 @@ class DepartmentAdmin(admin.ModelAdmin):
     )
 
 
-admin.site.register(Lecture, LectureAdmin)
+# admin.site.register(Lecture, LectureAdmin)
 admin.site.register(Department, DepartmentAdmin)
