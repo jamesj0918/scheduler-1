@@ -12,12 +12,21 @@ class LectureAdmin(admin.ModelAdmin):
     list_display = (
         'title',
         'uuid',
+        'division',
         'type',
-        'department',
+        'field',
+        'grade',
         'professor',
     )
-    list_filter = ['type', 'department']
-    search_fields = ['title', 'lecture_id', 'professor']
+    list_filter = (
+        'type',
+        'field',
+        'language',
+        'department',
+        'origin_department',
+        'target_department',
+    )
+    search_fields = ('title', 'lecture_id', 'professor')
     inlines = [LectureTimeInline]
 
 
@@ -28,5 +37,5 @@ class DepartmentAdmin(admin.ModelAdmin):
     )
 
 
-# admin.site.register(Lecture, LectureAdmin)
+admin.site.register(Lecture, LectureAdmin)
 admin.site.register(Department, DepartmentAdmin)
