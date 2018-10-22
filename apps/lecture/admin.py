@@ -1,18 +1,34 @@
 from django.contrib import admin
 
-from .models import Lecture, Department
+from .models import Lecture, LectureTime, Department
+
+
+class LectureTimeInline(admin.TabularInline):
+    model = LectureTime
+    extra = 1
 
 
 class LectureAdmin(admin.ModelAdmin):
     list_display = (
         'title',
-        'lecture_id',
+        'uuid',
+        'division',
         'type',
-        'department',
+        'field',
+        'grade',
+        'point',
         'professor',
-        'start_time',
-        'end_time',
+        'classroom',
     )
+    list_filter = (
+        'type',
+        'field',
+        'language',
+        'department',
+    )
+    search_fields = ('title', 'uuid', 'professor')
+    inlines = [LectureTimeInline]
+    ordering = ('id',)
 
 
 class DepartmentAdmin(admin.ModelAdmin):
@@ -20,6 +36,7 @@ class DepartmentAdmin(admin.ModelAdmin):
         'title',
         'get_number_of_lectures_in_department',
     )
+    search_fields = ('title',)
 
 
 admin.site.register(Lecture, LectureAdmin)
