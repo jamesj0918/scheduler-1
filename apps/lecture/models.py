@@ -32,14 +32,18 @@ class Lecture(models.Model):
     LECTURE_MAJOR_OPTIONAL = 4
     LECTURE_MAJOR_EXTRA = 5
 
-    LECTURE_TYPE = (
-        (LECTURE_REQUIRED, '중핵필수'),
-        (LECTURE_REQUIRED_OPTIONAL, '중핵필수선택'),
-        (LECTURE_OPTIONAL_EXTRA, '자유선택교양'),
-        (LECTURE_MAJOR_REQUIRED, '전공필수'),
-        (LECTURE_MAJOR_OPTIONAL, '전공선택'),
-        (LECTURE_MAJOR_EXTRA, '전공기초교양'),
-    )
+    LECTURE_TYPE = {
+        '중핵필수': LECTURE_REQUIRED,
+        '중핵필수선택': LECTURE_MAJOR_OPTIONAL,
+        '자유선택교양': LECTURE_OPTIONAL_EXTRA,
+        '전공필수': LECTURE_MAJOR_REQUIRED,
+        '전공선택': LECTURE_MAJOR_OPTIONAL,
+        '전공기초교양': LECTURE_MAJOR_EXTRA,
+    }
+
+    LECTURE_CHOICE_SET = []
+    for lecture_choice in LECTURE_TYPE.items():
+        LECTURE_CHOICE_SET.append((lecture_choice[1], lecture_choice[0]))
 
     FIELD_BASIC = 0
     FIELD_CREATIVITY = 1
@@ -56,48 +60,62 @@ class Lecture(models.Model):
     FIELD_WORLDWIDE = 12
     FIELD_ENHANCING = 13
 
-    FIELD_TYPE = (
-        (FIELD_BASIC, '학문기초'),
-        (FIELD_CREATIVITY, '인성과창의력'),
-        (FIELD_IDEOLOGY, '사상과역사'),
-        (FIELD_CULTURE, '사회와문화'),
-        (FIELD_CONVERGENCE, '융합과창업'),
-        (FIELD_TECHNOLOGY, '자연과과학기술'),
-        (FIELD_EARTH, '세계와지구촌'),
-        (FIELD_SCIENCE, '생명과 과학'),
-        (FIELD_MORALITY, '인성과도덕'),
-        (FIELD_HISTORY, '역사와문화'),
-        (FIELD_LAW, '사회와제도'),
-        (FIELD_ART, '예술과생활'),
-        (FIELD_WORLDWIDE, '지구촌의이해'),
-        (FIELD_ENHANCING, '역량강화'),
-    )
+    FIELD_TYPE = {
+        '학문기초': FIELD_BASIC,
+        '인성과창의력': FIELD_CREATIVITY,
+        '사상과역사': FIELD_IDEOLOGY,
+        '사회와문화': FIELD_CULTURE,
+        '융합과창업': FIELD_CONVERGENCE,
+        '자연과과학기술': FIELD_TECHNOLOGY,
+        '세계와지구촌': FIELD_EARTH,
+        '생명과 과학': FIELD_SCIENCE,
+        '인성과도덕': FIELD_MORALITY,
+        '역사와문화': FIELD_HISTORY,
+        '사회와제도': FIELD_LAW,
+        '예술과생활': FIELD_ART,
+        '지구촌의이해': FIELD_WORLDWIDE,
+        '역량강화': FIELD_ENHANCING,
+    }
+
+    FIELD_CHOICE_SET = []
+    for field_choice in FIELD_TYPE.items():
+        FIELD_CHOICE_SET.append((field_choice[1], field_choice[0]))
 
     LANGUAGE_KOR = 0
     LANGUAGE_ENG = 1
+    LANGUAGE_ENGKOR = 2
 
-    LANGUAGE_TYPE = (
-        (LANGUAGE_KOR, '한국어'),
-        (LANGUAGE_ENG, '영어'),
-    )
+    LANGUAGE_TYPE = {
+        '한국어': LANGUAGE_KOR,
+        '영어': LANGUAGE_ENG,
+        '영어/한국어': LANGUAGE_ENGKOR,
+    }
+
+    LANGUAGE_CHOICE_SET = []
+    for lang_choice in LANGUAGE_TYPE.items():
+        LANGUAGE_CHOICE_SET.append((lang_choice[1], lang_choice[0]))
 
     uuid = models.CharField(_('lecture id'), max_length=16)
-    division = models.IntegerField(_('division'), default=1)
+    division = models.CharField(_('division'), max_length=8, default=1)
     title = models.CharField(_('title'), max_length=64)
-    type = models.IntegerField(_('lecture type'), choices=LECTURE_TYPE, default=LECTURE_REQUIRED)
-    field = models.IntegerField(_('lecture field'), choices=FIELD_TYPE, default=FIELD_BASIC)
-    grade = models.FloatField(_('grade point'), default=1)
-    language = models.IntegerField(_('language'), choices=LANGUAGE_TYPE, default=LANGUAGE_KOR)
+    type = models.IntegerField(_('lecture type'),
+                               null=True, blank=True, choices=LECTURE_CHOICE_SET, default=LECTURE_REQUIRED)
+    field = models.IntegerField(_('lecture field'),
+                                null=True, blank=True, choices=FIELD_CHOICE_SET, default=FIELD_BASIC)
+    grade = models.IntegerField(_('grade'), default=1, null=True, blank=True)
+    point = models.FloatField(_('point'), default=1.0, null=True, blank=True)
+    language = models.IntegerField(_('language'),
+                                   null=True, blank=True, choices=LANGUAGE_CHOICE_SET, default=LANGUAGE_KOR)
 
     department = models.ForeignKey(
         Department, verbose_name=_('department'), on_delete=models.CASCADE, related_name='lectures')
-    target_department = models.ForeignKey(
-        Department, verbose_name=_('target department'), on_delete=models.CASCADE, related_name='target_lectures')
+    # target_department = models.ForeignKey(
+    #     Department, verbose_name=_('target department'), on_delete=models.CASCADE, related_name='target_lectures')
     origin_department = models.ForeignKey(
         Department, verbose_name=_('origin department'), on_delete=models.CASCADE, related_name='origin_lectures')
 
-    classroom = models.CharField(_('classroom'), max_length=16)
-    professor = models.CharField(_('professor'), max_length=32)
+    classroom = models.CharField(_('classroom'), null=True, blank=True, max_length=16)
+    professor = models.CharField(_('professor'), null=True, blank=True, max_length=32)
 
     def __str__(self):
         return self.title
@@ -114,11 +132,11 @@ class LectureTime(models.Model):
     TIME_FRIDAY = 4
 
     TIME_DAYS = (
-        (TIME_MONDAY, '월요일'),
-        (TIME_TUESDAY, '화요일'),
-        (TIME_WEDNESDAY, '수요일'),
-        (TIME_THURSDAY, '목요일'),
-        (TIME_FRIDAY, '금요일'),
+        (TIME_MONDAY, '월'),
+        (TIME_TUESDAY, '화'),
+        (TIME_WEDNESDAY, '수'),
+        (TIME_THURSDAY, '목'),
+        (TIME_FRIDAY, '금'),
     )
 
     day = models.IntegerField(choices=TIME_DAYS, default=TIME_MONDAY)
