@@ -131,15 +131,19 @@ class LectureTime(models.Model):
     TIME_THURSDAY = 3
     TIME_FRIDAY = 4
 
-    TIME_DAYS = (
-        (TIME_MONDAY, '월'),
-        (TIME_TUESDAY, '화'),
-        (TIME_WEDNESDAY, '수'),
-        (TIME_THURSDAY, '목'),
-        (TIME_FRIDAY, '금'),
-    )
+    TIME_DAYS = {
+        '월': TIME_MONDAY,
+        '화': TIME_TUESDAY,
+        '수': TIME_WEDNESDAY,
+        '목': TIME_THURSDAY,
+        '금': TIME_FRIDAY,
+    }
 
-    day = models.IntegerField(choices=TIME_DAYS, default=TIME_MONDAY)
+    TIME_CHOICE_SET = []
+    for time_choice in TIME_DAYS.items():
+        TIME_CHOICE_SET.append((time_choice[1], time_choice[0]))
+
+    day = models.IntegerField(choices=TIME_CHOICE_SET, default=TIME_MONDAY)
     start_time = models.TimeField()
     end_time = models.TimeField()
     lecture = models.ForeignKey(Lecture, on_delete=models.CASCADE)

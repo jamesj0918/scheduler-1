@@ -1,6 +1,6 @@
 from openpyxl import load_workbook
 
-from .models import Lecture, Department
+from .models import Lecture, LectureTime, Department
 
 
 def parse_lecture_data():
@@ -32,8 +32,6 @@ def parse_lecture_data():
         # column S
         language = Lecture.LANGUAGE_TYPE.get(row[18].value)
 
-        rawtime = row[11].value         # column L
-
         # column B
         department, created = Department.objects.get_or_create(title=row[1].value)
 
@@ -44,9 +42,33 @@ def parse_lecture_data():
         professor = row[13].value       # column N
 
         # Create a corresponding object for an input.
-        Lecture.objects.create(
+        lecture = Lecture.objects.create(
             title=title, uuid=uuid, division=division, grade=grade, point=point,
             type=type, field=field, language=language,
             department=department, origin_department=origin_dept,
             classroom=classroom, professor=professor,
         )
+
+        # column L
+        rawtimes = row[11].value
+
+        # if value is None, skip the current row
+        if rawtimes is None:
+            continue
+
+        # split rawtime with comma
+        rawtimes = rawtimes.split(',')
+        for rawtime in rawtimes:
+            rawtime = rawtime.split()
+            days_cache = []
+            for token in rawtime:
+                # add all days before timerange into days_cache
+                if token in LectureTime.TIME_DAYS:
+                    days_cache.append(LectureTime.TIME_DAYS[token])
+                # create time range with days
+                elif len(token) > 2:
+                    times = token.split('~')
+                    for days in days_cache:
+                        LectureTime.objects.get_or_create(
+                            lecture=lecture, start_time=times[0], end_time=times[1], day=days)
+                    days_cache.clear()
