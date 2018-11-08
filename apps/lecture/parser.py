@@ -3,12 +3,17 @@ from openpyxl import load_workbook
 from .models import Lecture, LectureTime, Department
 
 
+def create_parser(path, worksheet):
+    wb = load_workbook(path, read_only=True)
+    ws = wb[worksheet]
+    return ws
+
+
 def parse_lecture_data():
     """
     Parse the lecture.xlsx file and create a lecture database.
     """
-    wb = load_workbook('lectures.xlsx', read_only=True)
-    ws = wb['강의시간표(schedule)']
+    ws = create_parser('lectures.xlsx', '강의시간표(schedule)')
 
     first_row = False
     for row in ws.rows:

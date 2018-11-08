@@ -120,6 +120,13 @@ class Lecture(models.Model):
     def __str__(self):
         return self.title
 
+    @staticmethod
+    def get_lectures_with_day_filter(filters):
+        """
+        Get all lectures with day filter set.
+        """
+        return Lecture.objects.exclude(times__day__in=[day for day in filters])
+
 
 class LectureTime(models.Model):
     """
@@ -146,4 +153,4 @@ class LectureTime(models.Model):
     day = models.IntegerField(choices=TIME_CHOICE_SET, default=TIME_MONDAY)
     start_time = models.TimeField()
     end_time = models.TimeField()
-    lecture = models.ForeignKey(Lecture, on_delete=models.CASCADE)
+    lecture = models.ForeignKey(Lecture, on_delete=models.CASCADE, related_name='times')
