@@ -14,7 +14,7 @@ class LectureAdmin(admin.ModelAdmin):
         'uuid',
         'division',
         'type',
-        'field',
+        'category',
         'grade',
         'point',
         'professor',
@@ -22,7 +22,7 @@ class LectureAdmin(admin.ModelAdmin):
     )
     list_filter = (
         'type',
-        'field',
+        'category',
         'language',
         'department',
     )

@@ -45,41 +45,57 @@ class Lecture(models.Model):
     for lecture_choice in LECTURE_TYPE.items():
         LECTURE_CHOICE_SET.append((lecture_choice[1], lecture_choice[0]))
 
-    FIELD_BASIC = 0
-    FIELD_CREATIVITY = 1
-    FIELD_IDEOLOGY = 2
-    FIELD_CULTURE = 3
-    FIELD_CONVERGENCE = 4
-    FIELD_TECHNOLOGY = 5
-    FIELD_EARTH = 6
-    FIELD_SCIENCE = 7
-    FIELD_MORALITY = 8
-    FIELD_HISTORY = 9
-    FIELD_LAW = 10
-    FIELD_ART = 11
-    FIELD_WORLDWIDE = 12
-    FIELD_ENHANCING = 13
+    CATEGORY_NONE = 0
+    CATEGORY_ECONOMICS = 1
+    CATEGORY_MANAGEMENT = 2
+    CATEGORY_LANGUAGE = 3
+    CATEGORY_BROADCASTING = 4
+    CATEGORY_HUMANITY = 5
+    CATEGORY_PSYCHOLOGY = 6
+    CATEGORY_HISTORY = 7
+    CATEGORY_SPORTS = 8
+    CATEGORY_CAREER = 9
+    CATEGORY_CULTURE = 10
+    CATEGORY_SOCIETY = 11
+    CATEGORY_SCIENCE = 12
+    CATEGORY_MATHEMATICS = 13
+    CATEGORY_ART = 14
+    CATEGORY_RELIGION = 15
+    CATEGORY_LIFESTYLE = 16
+    CATEGORY_HOBBY = 17
+    CATEGORY_COMPUTER = 18
+    CATEGORY_TECHNOLOGY = 19
+    CATEGORY_CONVERGENCE = 20
+    CATEGORY_COMICS = 21
 
-    FIELD_TYPE = {
-        '학문기초': FIELD_BASIC,
-        '인성과창의력': FIELD_CREATIVITY,
-        '사상과역사': FIELD_IDEOLOGY,
-        '사회와문화': FIELD_CULTURE,
-        '융합과창업': FIELD_CONVERGENCE,
-        '자연과과학기술': FIELD_TECHNOLOGY,
-        '세계와지구촌': FIELD_EARTH,
-        '생명과 과학': FIELD_SCIENCE,
-        '인성과도덕': FIELD_MORALITY,
-        '역사와문화': FIELD_HISTORY,
-        '사회와제도': FIELD_LAW,
-        '예술과생활': FIELD_ART,
-        '지구촌의이해': FIELD_WORLDWIDE,
-        '역량강화': FIELD_ENHANCING,
+    CATEGORY_TYPE = {
+        '없음': CATEGORY_NONE,
+        '경제': CATEGORY_ECONOMICS,
+        '경영': CATEGORY_MANAGEMENT,
+        '언어': CATEGORY_LANGUAGE,
+        '방송': CATEGORY_BROADCASTING,
+        '인문': CATEGORY_HUMANITY,
+        '심리': CATEGORY_PSYCHOLOGY,
+        '역사': CATEGORY_HISTORY,
+        '스포츠': CATEGORY_SPORTS,
+        '진로': CATEGORY_CAREER,
+        '문화': CATEGORY_CULTURE,
+        '사회': CATEGORY_SOCIETY,
+        '과학': CATEGORY_SCIENCE,
+        '수학': CATEGORY_MATHEMATICS,
+        '예술': CATEGORY_ART,
+        '종교': CATEGORY_RELIGION,
+        '생활': CATEGORY_LIFESTYLE,
+        '취미': CATEGORY_HOBBY,
+        '컴퓨터': CATEGORY_COMPUTER,
+        '기술': CATEGORY_TECHNOLOGY,
+        '융합': CATEGORY_CONVERGENCE,
+        '만화': CATEGORY_COMICS,
     }
 
-    FIELD_CHOICE_SET = []
-    for field_choice in FIELD_TYPE.items():
-        FIELD_CHOICE_SET.append((field_choice[1], field_choice[0]))
+    CATEGORY_CHOICE_SET = []
+    for category_choice in CATEGORY_TYPE.items():
+        CATEGORY_CHOICE_SET.append((category_choice[1], category_choice[0]))
 
     LANGUAGE_KOR = 0
     LANGUAGE_ENG = 1
@@ -100,8 +116,8 @@ class Lecture(models.Model):
     title = models.CharField(_('title'), max_length=64)
     type = models.IntegerField(_('lecture type'),
                                null=True, blank=True, choices=LECTURE_CHOICE_SET, default=LECTURE_REQUIRED)
-    field = models.IntegerField(_('lecture field'),
-                                null=True, blank=True, choices=FIELD_CHOICE_SET, default=FIELD_BASIC)
+    category = models.IntegerField(_('lecture category'),
+                                   null=True, blank=True, choices=CATEGORY_CHOICE_SET, default=CATEGORY_NONE)
     grade = models.IntegerField(_('grade'), default=1, null=True, blank=True)
     point = models.FloatField(_('point'), default=1.0, null=True, blank=True)
     language = models.IntegerField(_('language'),
