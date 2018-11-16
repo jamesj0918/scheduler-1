@@ -41,7 +41,7 @@ def parse_lecture_data():
         lecture_type = Lecture.LECTURE_TYPE.get(row[5].value)
 
         # column G
-        category = categorize_lecture(title)
+        # category = categorize_lecture(title)
 
         # column S
         language = Lecture.LANGUAGE_TYPE.get(row[18].value)
@@ -108,10 +108,10 @@ def categorize_lecture(title):
 
     lecture_idx = score.index(max(score)) + 1
     if max(score) == 0 and lecture_idx == 1:
-        return Lecture.CATEGORY_NONE
+        return '없음'
 
     for lecture, idx in Lecture.CATEGORY_TYPE.items():
         if idx == lecture_idx:
-            return Lecture.CATEGORY_TYPE[lecture]
+            return lecture
 
-    return Lecture.CATEGORY_NONE
+    return '없음'
