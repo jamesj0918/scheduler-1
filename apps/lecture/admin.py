@@ -14,6 +14,8 @@ class LectureAdmin(admin.ModelAdmin):
         'code',
         'division',
         'type',
+        'category',
+        'subcategory',
         'grade',
         'point',
         'professor',
