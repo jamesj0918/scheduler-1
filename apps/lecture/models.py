@@ -53,7 +53,7 @@ class Category(models.Model):
     category = models.IntegerField(choices=CHOICE_SET, default=NONE)
 
     def __str__(self):
-        return self.category
+        return self.get_category_display()
 
 
 class Subcategory(models.Model):
@@ -110,7 +110,7 @@ class Subcategory(models.Model):
         '없음': NONE,
         '경제': ECONOMY,
         '경영': MANAGEMENT,
-        '마케팅': MARKETING,
+        '마케팅/세일즈': MARKETING,
         '철학': PHILOSOPHY,
         '문학': LITERATURE,
         '역사/문화': HISTORY,
@@ -155,7 +155,7 @@ class Subcategory(models.Model):
     subcategory = models.IntegerField(choices=CHOICE_SET, default=NONE)
 
     def __str__(self):
-        return self.subcategory
+        return self.get_subcategory_display()
 
 
 class Lecture(models.Model):
