@@ -60,7 +60,7 @@ K-Pop Music 2_건축디자인_공연기획과실습_공연의이해와감상_공
 #국어
 국어논리및논술_국어학개론_한국문화와한국어교육_한국어문법교육론_한국어어문생활의실제_한국어화용론
 #영어
-영어논리및논술_English Writing 1_English Writing 2_English Composition 1_English Composition 2_English Listening_English Listening Practice 1_English Listening Practice 2_English Reading Practice 2_English Speaking_Strategies(TS) 2_Intensive English_TOEIC R/C_Technical Writing기초_관광논리및논술_국제업무와영어_글로벌잉글리쉬2_기초회화2_영문번역의첫걸음_영어권문화의이해_영어듣기연습_영어어휘와발음_English Reading_영어의활용_영어읽기연습_영어통사론_팝으로영어청취하기_글로벌잉글리쉬2(심화)_글로벌잉글리쉬2(진로탐색)_GMSW-IT기술영작문(심화)
+English Speaking Strategies(TS) 2_영어논리및논술_English Writing 1_English Writing 2_English Composition 1_English Composition 2_English Listening_English Listening Practice 1_English Listening Practice 2_English Reading Practice 2_English Speaking_Strategies(TS) 2_Intensive English_TOEIC R/C_Technical Writing기초_관광논리및논술_국제업무와영어_글로벌잉글리쉬2_기초회화2_영문번역의첫걸음_영어권문화의이해_영어듣기연습_영어어휘와발음_English Reading_영어의활용_영어읽기연습_영어통사론_팝으로영어청취하기_글로벌잉글리쉬2(심화)_글로벌잉글리쉬2(진로탐색)_GMSW-IT기술영작문(심화)
 #일본어
 생활일본어_일문학강독3_일본어2_일본어A2_일본어B2_일본어강독_일본어능력시험_일본어회화_코우치학
 #중국어
