@@ -5,7 +5,7 @@ from rest_framework.generics import ListAPIView
 from rest_framework.response import Response
 from rest_framework import status
 
-from .models import Lecture, LectureTime
+from .models import Lecture, LectureTime, Category, Subcategory
 from .serializers import LectureSerializer
 
 
@@ -39,12 +39,19 @@ def filter_timetable(queryset, name, value):
     """
     query = [x.strip() for x in value.split(',')]
     result = queryset
+    days = {
+        'mon': 0,
+        'tue': 1,
+        'wed': 2,
+        'thu': 3,
+        'fri': 4
+    }
 
     for time in query:
         time = time.split(':')
         if len(time) == 1:
             # Time query only contains one argument: filters whole day.
-            day = Q(timetable__day=time[0])
+            day = Q(timetable__day=days[time[0]])
             result = result.exclude(day)
         elif len(time) == 2:
             # Time query only contains two arguments: filters whole timetable.
@@ -53,7 +60,7 @@ def filter_timetable(queryset, name, value):
             result = result.exclude(start & end)
         else:
             # Time query contains full condition: filters with day and timetable.
-            day = Q(timetable__day=time[0])
+            day = Q(timetable__day=days[time[0]])
             start = Q(timetable__start__gte=convert_time(time[1]))
             end = Q(timetable__end__lte=convert_time(time[2]))
             result = result.exclude(day & start & end)
@@ -61,15 +68,13 @@ def filter_timetable(queryset, name, value):
     return result
 
 
-def filter_selected(queryset, name, value):
-    return queryset
-
-
 class LectureSearchFilter(filters.FilterSet):
     title = filters.CharFilter(field_name='title', lookup_expr='icontains')
     professor = filters.CharFilter(field_name='professor', lookup_expr='icontains')
-    lecture = filters.CharFilter(field_name='lecture', method='filter_lecture')
-    timetable = filters.CharFilter(field_name='timetable', method='filter_timetable')
+    category = filters.CharFilter(field_name='category', method='filter_category')
+    subcategory = filters.CharFilter(field_name='subcategory', method='filter_subcategory')
+    lecture = filters.CharFilter(field_name='lecture', method=filter_lecture)
+    timetable = filters.CharFilter(field_name='timetable', method=filter_timetable)
 
     class Meta:
         model = Lecture
@@ -78,10 +83,20 @@ class LectureSearchFilter(filters.FilterSet):
             'code',
             'title',
             'point',
+            'category',
+            'subcategory',
             'professor',
             'lecture',
             'timetable',
         )
+
+    def filter_category(self, queryset, name, value):
+        category = Category.CATEGORIES.get(value, Category.NONE)
+        return queryset.filter(category__category__icontains=category)
+
+    def filter_subcategory(self, queryset, name, value):
+        subcategory = Subcategory.SUBCATEGORIES.get(value, Subcategory.NONE)
+        return queryset.filter(subcategory__subcategory__icontains=subcategory)
 
 
 class LectureSearchAPIView(ListAPIView):
@@ -106,9 +121,9 @@ class LectureSearchAPIView(ListAPIView):
 
 
 class LectureQueryFilter(filters.FilterSet):
-    fixed = filters.CharFilter(field_name='fixed', method='filter_lecture')
+    fixed = filters.CharFilter(field_name='fixed', method=filter_lecture)
     selected = filters.CharFilter(field_name='selected', method='filter_selected')
-    timetable = filters.CharFilter(field_name='timetable', method='filter_timetable')
+    timetable = filters.CharFilter(field_name='timetable', method=filter_timetable)
 
     class Meta:
         model = Lecture
@@ -117,6 +132,9 @@ class LectureQueryFilter(filters.FilterSet):
             'selected',
             'timetable',
         )
+
+    def filter_selected(self, queryset, name, value):
+        return queryset
 
 
 class LectureQueryAPIView(ListAPIView):
