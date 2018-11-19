@@ -120,7 +120,7 @@ def categorize_lecture(title):
         else:
             # Current line is title of lectures. Search title in this line.
             # and if the lecture is found, set the found True.
-            lectures = [x.strip() for x in line.split(',')]
+            lectures = [x.strip() for x in line.split('_')]
             if title in lectures:
                 found = True
 
