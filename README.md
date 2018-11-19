@@ -4,7 +4,7 @@ A lecture scheduler for university students. Built with Django 2.1.
 ## Features
 * Provides a list of possible scenarios of lectures.
 * Ability to create a break time in schedules.
-* REST API Service support for various platforms.
+* REST API support for various platforms.
 * Categorizing lectures by searching lecture titles from [NAVER Book](https://book.naver.com/).
 
 ## API Endpoints
@@ -21,8 +21,8 @@ A lecture scheduler for university students. Built with Django 2.1.
 |`subcategory`|`string`|Sub-category of the lecture. See `sub-categories` for more informations.|
 |`classroom`|`string`|Classroom of the lecture.|
 |`professor`|`string`|Professor of the lecture.|
-|`lecture`|`list (int)`|List of lectures. Lectures will be filtered with the `timetable` in the list.|
-|`timetable`|`list (string)`|List of timetables. Format of `timetable` is: `day:start:end`. (For example, Monday, Starts at 13:00, Ends at 15:00 would be `mon:1300:1500`)
+|`lecture`|`list`|List of `id` of lectures. Lectures will be filtered with the `timetable` in the list.|
+|`timetable`|`list`|List of timetables. Format of `timetable` is: `day:start:end`. (For example, Monday, Starts at 13:00, Ends at 15:00 would be `mon:1300:1500`)
 
 ## License
 Licensed under the [MIT License](https://github.com/pellstrike/scheduler/blob/master/LICENSE.md).
