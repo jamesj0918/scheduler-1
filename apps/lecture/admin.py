@@ -22,6 +22,8 @@ class LectureAdmin(admin.ModelAdmin):
     list_filter = (
         'type',
         'language',
+        'category',
+        'subcategory',
         'department',
     )
     search_fields = ('title', 'code', 'professor')
