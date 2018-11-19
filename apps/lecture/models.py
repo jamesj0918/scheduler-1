@@ -21,96 +21,6 @@ class Department(models.Model):
     get_number_of_lectures_in_department.short_description = 'Lectures in Department'
 
 
-class Lecture(models.Model):
-    """
-    A class which represents a model of lecture.
-    """
-    LECTURE_REQUIRED = 0
-    LECTURE_REQUIRED_OPTIONAL = 1
-    LECTURE_OPTIONAL_EXTRA = 2
-    LECTURE_MAJOR_REQUIRED = 3
-    LECTURE_MAJOR_OPTIONAL = 4
-    LECTURE_MAJOR_EXTRA = 5
-
-    LECTURE_TYPE = {
-        '중핵필수': LECTURE_REQUIRED,
-        '중핵필수선택': LECTURE_MAJOR_OPTIONAL,
-        '자유선택교양': LECTURE_OPTIONAL_EXTRA,
-        '전공필수': LECTURE_MAJOR_REQUIRED,
-        '전공선택': LECTURE_MAJOR_OPTIONAL,
-        '전공기초교양': LECTURE_MAJOR_EXTRA,
-    }
-
-    LECTURE_CHOICE_SET = []
-    for lecture_choice in LECTURE_TYPE.items():
-        LECTURE_CHOICE_SET.append((lecture_choice[1], lecture_choice[0]))
-
-    LANGUAGE_KOR = 0
-    LANGUAGE_ENG = 1
-    LANGUAGE_ENGKOR = 2
-
-    LANGUAGE_TYPE = {
-        '한국어': LANGUAGE_KOR,
-        '영어': LANGUAGE_ENG,
-        '영어/한국어': LANGUAGE_ENGKOR,
-    }
-
-    LANGUAGE_CHOICE_SET = []
-    for lang_choice in LANGUAGE_TYPE.items():
-        LANGUAGE_CHOICE_SET.append((lang_choice[1], lang_choice[0]))
-
-    code = models.CharField(_('lecture id'), max_length=16)
-    division = models.CharField(_('division'), max_length=8, default=1)
-    title = models.CharField(_('title'), max_length=64)
-    type = models.IntegerField(_('lecture type'),
-                               null=True, blank=True, choices=LECTURE_CHOICE_SET, default=LECTURE_REQUIRED)
-    grade = models.IntegerField(_('grade'), default=1, null=True, blank=True)
-    point = models.FloatField(_('point'), default=1.0, null=True, blank=True)
-    language = models.IntegerField(_('language'),
-                                   null=True, blank=True, choices=LANGUAGE_CHOICE_SET, default=LANGUAGE_KOR)
-
-    department = models.ForeignKey(
-        Department, verbose_name=_('department'), on_delete=models.CASCADE, related_name='lectures')
-    # target_department = models.ForeignKey(
-    #     Department, verbose_name=_('target department'), on_delete=models.CASCADE, related_name='target_lectures')
-    origin_department = models.ForeignKey(
-        Department, verbose_name=_('origin department'), on_delete=models.CASCADE, related_name='origin_lectures')
-
-    classroom = models.CharField(_('classroom'), null=True, blank=True, max_length=16)
-    professor = models.CharField(_('professor'), null=True, blank=True, max_length=32)
-
-    def __str__(self):
-        return self.title
-
-
-class LectureTime(models.Model):
-    """
-    A class which represents a time of the lecture.
-    """
-    MONDAY = 0
-    TUESDAY = 1
-    WEDNESDAY = 2
-    THURSDAY = 3
-    FRIDAY = 4
-
-    DAYS = {
-        '월': MONDAY,
-        '화': TUESDAY,
-        '수': WEDNESDAY,
-        '목': THURSDAY,
-        '금': FRIDAY,
-    }
-
-    CHOICE_SET = []
-    for time_choice in DAYS.items():
-        CHOICE_SET.append((time_choice[1], time_choice[0]))
-
-    day = models.IntegerField(choices=CHOICE_SET, default=MONDAY)
-    start = models.TimeField()
-    end = models.TimeField()
-    lecture = models.ForeignKey(Lecture, on_delete=models.CASCADE, related_name='timetable')
-
-
 class Category(models.Model):
     NONE = 0
     MARKET = 1
@@ -141,7 +51,6 @@ class Category(models.Model):
         CHOICE_SET.append((category_choice[1], category_choice[0]))
 
     category = models.IntegerField(choices=CHOICE_SET, default=NONE)
-    lecture = models.ForeignKey(Lecture, on_delete=models.CASCADE, related_name='categories')
 
     def __str__(self):
         return self.category
@@ -244,7 +153,101 @@ class Subcategory(models.Model):
         CHOICE_SET.append((subcategory_choice[1], subcategory_choice[0]))
 
     subcategory = models.IntegerField(choices=CHOICE_SET, default=NONE)
-    lecture = models.ForeignKey(Lecture, on_delete=models.CASCADE, related_name='subcategories')
 
     def __str__(self):
         return self.subcategory
+
+
+class Lecture(models.Model):
+    """
+    A class which represents a model of lecture.
+    """
+    LECTURE_REQUIRED = 0
+    LECTURE_REQUIRED_OPTIONAL = 1
+    LECTURE_OPTIONAL_EXTRA = 2
+    LECTURE_MAJOR_REQUIRED = 3
+    LECTURE_MAJOR_OPTIONAL = 4
+    LECTURE_MAJOR_EXTRA = 5
+
+    LECTURE_TYPE = {
+        '중핵필수': LECTURE_REQUIRED,
+        '중핵필수선택': LECTURE_MAJOR_OPTIONAL,
+        '자유선택교양': LECTURE_OPTIONAL_EXTRA,
+        '전공필수': LECTURE_MAJOR_REQUIRED,
+        '전공선택': LECTURE_MAJOR_OPTIONAL,
+        '전공기초교양': LECTURE_MAJOR_EXTRA,
+    }
+
+    LECTURE_CHOICE_SET = []
+    for lecture_choice in LECTURE_TYPE.items():
+        LECTURE_CHOICE_SET.append((lecture_choice[1], lecture_choice[0]))
+
+    LANGUAGE_KOR = 0
+    LANGUAGE_ENG = 1
+    LANGUAGE_ENGKOR = 2
+
+    LANGUAGE_TYPE = {
+        '한국어': LANGUAGE_KOR,
+        '영어': LANGUAGE_ENG,
+        '영어/한국어': LANGUAGE_ENGKOR,
+    }
+
+    LANGUAGE_CHOICE_SET = []
+    for lang_choice in LANGUAGE_TYPE.items():
+        LANGUAGE_CHOICE_SET.append((lang_choice[1], lang_choice[0]))
+
+    code = models.CharField(_('lecture id'), max_length=16)
+    division = models.CharField(_('division'), max_length=8, default=1)
+    title = models.CharField(_('title'), max_length=64)
+    type = models.IntegerField(_('lecture type'),
+                               null=True, blank=True, choices=LECTURE_CHOICE_SET, default=LECTURE_REQUIRED)
+    grade = models.IntegerField(_('grade'), default=1, null=True, blank=True)
+    point = models.FloatField(_('point'), default=1.0, null=True, blank=True)
+    language = models.IntegerField(_('language'),
+                                   null=True, blank=True, choices=LANGUAGE_CHOICE_SET, default=LANGUAGE_KOR)
+
+    category = models.ForeignKey(
+        Category, verbose_name=_('category'), on_delete=models.CASCADE, related_name='lectures')
+    subcategory = models.ForeignKey(
+        Subcategory, verbose_name=_('subcategory'), on_delete=models.CASCADE, related_name='lectures')
+
+    department = models.ForeignKey(
+        Department, verbose_name=_('department'), on_delete=models.CASCADE, related_name='lectures')
+    # target_department = models.ForeignKey(
+    #     Department, verbose_name=_('target department'), on_delete=models.CASCADE, related_name='target_lectures')
+    origin_department = models.ForeignKey(
+        Department, verbose_name=_('origin department'), on_delete=models.CASCADE, related_name='origin_lectures')
+
+    classroom = models.CharField(_('classroom'), null=True, blank=True, max_length=16)
+    professor = models.CharField(_('professor'), null=True, blank=True, max_length=32)
+
+    def __str__(self):
+        return self.title
+
+
+class LectureTime(models.Model):
+    """
+    A class which represents a time of the lecture.
+    """
+    MONDAY = 0
+    TUESDAY = 1
+    WEDNESDAY = 2
+    THURSDAY = 3
+    FRIDAY = 4
+
+    DAYS = {
+        '월': MONDAY,
+        '화': TUESDAY,
+        '수': WEDNESDAY,
+        '목': THURSDAY,
+        '금': FRIDAY,
+    }
+
+    CHOICE_SET = []
+    for time_choice in DAYS.items():
+        CHOICE_SET.append((time_choice[1], time_choice[0]))
+
+    day = models.IntegerField(choices=CHOICE_SET, default=MONDAY)
+    start = models.TimeField()
+    end = models.TimeField()
+    lecture = models.ForeignKey(Lecture, on_delete=models.CASCADE, related_name='timetable')
