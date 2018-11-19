@@ -17,6 +17,7 @@ A lecture scheduler for university students. Built with Django 2.1.
 |`id`|`int`|Unique identifier of the lecture. Not to be confused with `code`.|
 |`code`|`string`|Integer-labeled code of the lecture. Multiple lectures can have a same `code`.|
 |`title`|`string`|Title of the lecture. Note that this field is not for exact matching.|
+|`point`|`float`|Point of the lecture. Starting from `0.5`.|
 |`category`|`string`|Category of the lecture. See `categories` for more informations.|
 |`subcategory`|`string`|Sub-category of the lecture. See `sub-categories` for more informations.|
 |`classroom`|`string`|Classroom of the lecture.|
