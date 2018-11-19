@@ -23,7 +23,8 @@ class LectureSerializer(serializers.ModelSerializer):
     class Meta:
         model = Lecture
         fields = (
-            'uuid',
+            'id',
+            'code',
             'title',
             'point',
             'category',

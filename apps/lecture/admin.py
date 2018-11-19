@@ -11,7 +11,7 @@ class LectureTimeInline(admin.TabularInline):
 class LectureAdmin(admin.ModelAdmin):
     list_display = (
         'title',
-        'uuid',
+        'code',
         'division',
         'type',
         'category',
@@ -26,7 +26,7 @@ class LectureAdmin(admin.ModelAdmin):
         'language',
         'department',
     )
-    search_fields = ('title', 'uuid', 'professor')
+    search_fields = ('title', 'code', 'professor')
     inlines = [LectureTimeInline]
     ordering = ('id',)
 

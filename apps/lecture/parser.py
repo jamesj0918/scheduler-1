@@ -32,7 +32,7 @@ def parse_lecture_data():
             continue
 
         title = row[4].value            # column E
-        uuid = row[2].value             # column C
+        code = row[2].value             # column C
         division = row[3].value         # column D
         grade = int(row[7].value)       # column H
         point = float(row[8].value)     # column I
@@ -57,7 +57,7 @@ def parse_lecture_data():
 
         # Create a corresponding object for an input.
         lecture = Lecture.objects.create(
-            title=title, uuid=uuid, division=division, grade=grade, point=point,
+            title=title, code=code, division=division, grade=grade, point=point,
             type=lecture_type, category=category, language=language,
             department=department, origin_department=origin_dept,
             classroom=classroom, professor=professor,

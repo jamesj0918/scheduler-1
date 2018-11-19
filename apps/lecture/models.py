@@ -111,7 +111,7 @@ class Lecture(models.Model):
     for lang_choice in LANGUAGE_TYPE.items():
         LANGUAGE_CHOICE_SET.append((lang_choice[1], lang_choice[0]))
 
-    uuid = models.CharField(_('lecture id'), max_length=16)
+    code = models.CharField(_('lecture id'), max_length=16)
     division = models.CharField(_('division'), max_length=8, default=1)
     title = models.CharField(_('title'), max_length=64)
     type = models.IntegerField(_('lecture type'),
@@ -135,13 +135,6 @@ class Lecture(models.Model):
 
     def __str__(self):
         return self.title
-
-    @staticmethod
-    def get_lectures_with_day_filter(filters):
-        """
-        Get all lectures with day filter set.
-        """
-        return Lecture.objects.exclude(times__day__in=[day for day in filters])
 
 
 class LectureTime(models.Model):
