@@ -8,6 +8,7 @@ django = "*"
 openpyxl = "*"
 djangorestframework = "*"
 django-filter = "*"
+django-heroku = "*"
 
 [dev-packages]
 
