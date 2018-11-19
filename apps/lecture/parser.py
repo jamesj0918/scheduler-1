@@ -1,15 +1,8 @@
 from openpyxl import load_workbook
 
-from .models import Lecture, LectureTime, Department
-
-
-category_data = open('categories.txt', 'r')
-category_data = category_data.read().splitlines()
-categories = []
-
-for _category in category_data:
-    _category = _category.split(' ')
-    categories.append(_category)
+from .models import (
+    Lecture, LectureTime, Department, Category, Subcategory
+)
 
 
 def create_parser(path, worksheet):
@@ -32,7 +25,7 @@ def parse_lecture_data():
             continue
 
         title = row[4].value            # column E
-        uuid = row[2].value             # column C
+        code = row[2].value             # column C
         division = row[3].value         # column D
         grade = int(row[7].value)       # column H
         point = float(row[8].value)     # column I
@@ -41,7 +34,7 @@ def parse_lecture_data():
         lecture_type = Lecture.LECTURE_TYPE.get(row[5].value)
 
         # column G
-        # category = categorize_lecture(title)
+        categories, subcategories = categorize_lecture(title)
 
         # column S
         language = Lecture.LANGUAGE_TYPE.get(row[18].value)
@@ -57,11 +50,20 @@ def parse_lecture_data():
 
         # Create a corresponding object for an input.
         lecture = Lecture.objects.create(
-            title=title, uuid=uuid, division=division, grade=grade, point=point,
-            type=lecture_type, category=category, language=language,
+            title=title, code=code, division=division, grade=grade, point=point,
+            type=lecture_type, language=language,
             department=department, origin_department=origin_dept,
             classroom=classroom, professor=professor,
         )
+
+        # Add categories and subcategories
+        for category in categories:
+            item, created = Category.objects.get_or_create(category=category)
+            lecture.category.add(item)
+
+        for subcategory in subcategories:
+            item, created = Subcategory.objects.get_or_create(subcategory=subcategory)
+            lecture.subcategory.add(item)
 
         # column L
         rawtimes = row[11].value
@@ -77,41 +79,58 @@ def parse_lecture_data():
             days_cache = []
             for token in rawtime:
                 # add all days before timerange into days_cache
-                if token in LectureTime.TIME_DAYS:
-                    days_cache.append(LectureTime.TIME_DAYS[token])
+                if token in LectureTime.DAYS:
+                    days_cache.append(LectureTime.DAYS[token])
                 # create time range with days
                 elif len(token) > 2:
                     times = token.split('~')
                     for days in days_cache:
                         LectureTime.objects.get_or_create(
-                            lecture=lecture, start_time=times[0], end_time=times[1], day=days)
+                            lecture=lecture, start=times[0], end=times[1], day=days)
                     days_cache.clear()
 
 
 def categorize_lecture(title):
     """
     Categorize a lecture with the lecture title.
+    Returns main category and subcategory.
     """
-    score = []
+    category_prefix = '@'
+    subcategory_prefix = '#'
+
+    file = open('categories.txt', 'r')
+    data = file.read().splitlines()
+
+    categories = []
+    subcategories = []
+
+    category = Category.NONE
+    subcategory = Subcategory.NONE
     found = False
 
-    for category in category_data:
-        result = 0
-        for keyword in category.split():
-            if keyword in title.lower():
-                found = True
-                result = result + 1
-        if found:
-            score.append(result)
+    for line in data:
+        if line[0] == category_prefix:
+            # Current line is category.
+            category = line[1:]
+            found = False
+        elif line[0] == subcategory_prefix:
+            # Current line is subcategory.
+            subcategory = line[1:]
+            found = False
         else:
-            score.append(0)
+            # Current line is title of lectures. Search title in this line.
+            # and if the lecture is found, set the found True.
+            lectures = [x.strip() for x in line.split('_')]
+            if title in lectures:
+                found = True
 
-    lecture_idx = score.index(max(score)) + 1
-    if max(score) == 0 and lecture_idx == 1:
-        return '없음'
+        if found:
+            # If we found a lecture, append category and subcategory to list.
+            if category != Category.NONE:
+                categories.append(Category.CATEGORIES[category])
+            if subcategory != Subcategory.NONE:
+                subcategories.append(Subcategory.SUBCATEGORIES[subcategory])
+            found = False
 
-    for lecture, idx in Lecture.CATEGORY_TYPE.items():
-        if idx == lecture_idx:
-            return lecture
-
-    return '없음'
+    file.close()
+    return categories, subcategories
