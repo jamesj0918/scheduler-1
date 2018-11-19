@@ -21,6 +21,7 @@ class Department(models.Model):
     get_number_of_lectures_in_department.short_description = 'Lectures in Department'
 
 
+# TODO: Move all the enumerated contants to separate class.
 class Lecture(models.Model):
     """
     A class which represents a model of lecture.
@@ -46,56 +47,22 @@ class Lecture(models.Model):
         LECTURE_CHOICE_SET.append((lecture_choice[1], lecture_choice[0]))
 
     CATEGORY_NONE = 0
-    CATEGORY_ECONOMICS = 1
-    CATEGORY_MANAGEMENT = 2
-    CATEGORY_LANGUAGE = 3
-    CATEGORY_BROADCASTING = 4
-    CATEGORY_HUMANITY = 5
-    CATEGORY_PSYCHOLOGY = 6
-    CATEGORY_HISTORY = 7
-    CATEGORY_SPORTS = 8
-    CATEGORY_CAREER = 9
-    CATEGORY_CULTURE = 10
-    CATEGORY_SOCIETY = 11
-    CATEGORY_SCIENCE = 12
-    CATEGORY_MATHEMATICS = 13
-    CATEGORY_ART = 14
-    CATEGORY_RELIGION = 15
-    CATEGORY_LIFESTYLE = 16
-    CATEGORY_HOBBY = 17
-    CATEGORY_COMPUTER = 18
-    CATEGORY_TECHNOLOGY = 19
-    CATEGORY_CONVERGENCE = 20
-    CATEGORY_COMICS = 21
-
     CATEGORY_TYPE = {
         '없음': CATEGORY_NONE,
-        '경제': CATEGORY_ECONOMICS,
-        '경영': CATEGORY_MANAGEMENT,
-        '언어': CATEGORY_LANGUAGE,
-        '방송': CATEGORY_BROADCASTING,
-        '인문': CATEGORY_HUMANITY,
-        '심리': CATEGORY_PSYCHOLOGY,
-        '역사': CATEGORY_HISTORY,
-        '스포츠': CATEGORY_SPORTS,
-        '진로': CATEGORY_CAREER,
-        '문화': CATEGORY_CULTURE,
-        '사회': CATEGORY_SOCIETY,
-        '과학': CATEGORY_SCIENCE,
-        '수학': CATEGORY_MATHEMATICS,
-        '예술': CATEGORY_ART,
-        '종교': CATEGORY_RELIGION,
-        '생활': CATEGORY_LIFESTYLE,
-        '취미': CATEGORY_HOBBY,
-        '컴퓨터': CATEGORY_COMPUTER,
-        '기술': CATEGORY_TECHNOLOGY,
-        '융합': CATEGORY_CONVERGENCE,
-        '만화': CATEGORY_COMICS,
     }
 
     CATEGORY_CHOICE_SET = []
     for category_choice in CATEGORY_TYPE.items():
         CATEGORY_CHOICE_SET.append((category_choice[1], category_choice[0]))
+
+    SUBCATEGORY_NONE = 0
+    SUBCATEGORY_TYPE = {
+        '없음': SUBCATEGORY_NONE,
+    }
+
+    SUBCATEGORY_CHOICE_SET = []
+    for subcategory_choice in SUBCATEGORY_TYPE.items():
+        SUBCATEGORY_CHOICE_SET.append((subcategory_choice[1], subcategory_choice[0]))
 
     LANGUAGE_KOR = 0
     LANGUAGE_ENG = 1
@@ -118,6 +85,8 @@ class Lecture(models.Model):
                                null=True, blank=True, choices=LECTURE_CHOICE_SET, default=LECTURE_REQUIRED)
     category = models.IntegerField(_('lecture category'),
                                    null=True, blank=True, choices=CATEGORY_CHOICE_SET, default=CATEGORY_NONE)
+    subcategory = models.IntegerField(_('lecture subcategory'),
+                                      null=True, blank=True, choices=SUBCATEGORY_CHOICE_SET, default=SUBCATEGORY_NONE)
     grade = models.IntegerField(_('grade'), default=1, null=True, blank=True)
     point = models.FloatField(_('point'), default=1.0, null=True, blank=True)
     language = models.IntegerField(_('language'),
