@@ -17,7 +17,8 @@ class LectureTimeSerializer(serializers.ModelSerializer):
 
 class LectureSerializer(serializers.ModelSerializer):
     timetable = LectureTimeSerializer(many=True)
-    category = serializers.CharField(source='get_category_display')
+    category = serializers.StringRelatedField(many=True)
+    subcategory = serializers.StringRelatedField(many=True)
     department = serializers.StringRelatedField()
 
     class Meta:
@@ -28,6 +29,7 @@ class LectureSerializer(serializers.ModelSerializer):
             'title',
             'point',
             'category',
+            'subcategory',
             'department',
             'classroom',
             'professor',

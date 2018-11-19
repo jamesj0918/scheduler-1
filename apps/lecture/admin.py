@@ -14,7 +14,6 @@ class LectureAdmin(admin.ModelAdmin):
         'code',
         'division',
         'type',
-        'category',
         'grade',
         'point',
         'professor',
@@ -22,7 +21,6 @@ class LectureAdmin(admin.ModelAdmin):
     )
     list_filter = (
         'type',
-        'category',
         'language',
         'department',
     )

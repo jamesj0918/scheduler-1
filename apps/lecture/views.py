@@ -61,6 +61,10 @@ def filter_timetable(queryset, name, value):
     return result
 
 
+def filter_selected(queryset, name, value):
+    return queryset
+
+
 class LectureSearchFilter(filters.FilterSet):
     title = filters.CharFilter(field_name='title', lookup_expr='icontains')
     professor = filters.CharFilter(field_name='professor', lookup_expr='icontains')
@@ -74,8 +78,6 @@ class LectureSearchFilter(filters.FilterSet):
             'code',
             'title',
             'point',
-            'category',
-            'subcategory',
             'professor',
             'lecture',
             'timetable',
@@ -115,9 +117,6 @@ class LectureQueryFilter(filters.FilterSet):
             'selected',
             'timetable',
         )
-
-    def filter_selected(self, queryset, name, value):
-        pass
 
 
 class LectureQueryAPIView(ListAPIView):
