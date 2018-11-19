@@ -84,7 +84,7 @@ def parse_lecture_data():
                     times = token.split('~')
                     for days in days_cache:
                         LectureTime.objects.get_or_create(
-                            lecture=lecture, start_time=times[0], end_time=times[1], day=days)
+                            lecture=lecture, start=times[0], end=times[1], day=days)
                     days_cache.clear()
 
 
