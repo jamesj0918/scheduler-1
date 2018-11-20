@@ -15,20 +15,28 @@ def convert_time(time):
     return hours + ':' + minutes
 
 
+def filter_lecture_time(queryset, day, start, end):
+    day_filter = Q(timetable__day=day)
+    start_filter = Q(timetable__start__gte=start)
+    end_filter = Q(timetable__end__lte=end)
+    return queryset.exclude(day_filter & start_filter & end_filter)
+
+
 def filter_lecture(queryset, name, value):
     """
     Filter a queryset with a timetable of given lectures.
     """
     query = [int(x) for x in value.split(',')]
-    result = queryset
+    base = queryset
+    result = None
 
     for uuid in query:
         times = LectureTime.objects.filter(lecture=uuid)
         for time in times:
-            day = Q(timetable__day=time.day)
-            start = Q(timetable__start__gte=time.start)
-            end = Q(timetable__end__lte=time.end)
-            result = result.exclude(day & start & end)
+            if result is None:
+                result = filter_lecture_time(base, time.day, time.start, time.end)
+            else:
+                result.union(filter_lecture_time(base, time.day, time.start, time.end), all=True)
 
     return result
 
@@ -38,7 +46,8 @@ def filter_timetable(queryset, name, value):
     Filter a queryset with a timetable.
     """
     query = [x.strip() for x in value.split(',')]
-    result = queryset
+    base = queryset
+    result = None
     days = {
         'mon': 0,
         'tue': 1,
@@ -51,20 +60,45 @@ def filter_timetable(queryset, name, value):
         time = time.split(':')
         if len(time) == 1:
             # Time query only contains one argument: filters whole day.
-            day = Q(timetable__day=days[time[0]])
-            result = result.exclude(day)
+            if result is None:
+                result = base.exclude(timetable__day=days[time[0]])
+            else:
+                result.union(base.exclude(timetable__day=days[time[0]]), all=True)
         elif len(time) == 2:
             # Time query only contains two arguments: filters whole timetable.
-            start = Q(timetable__start__gte=convert_time(time[0]))
-            end = Q(timetable__end__lte=convert_time(time[1]))
-            result = result.exclude(start & end)
+            start = Q(timetable__start__gt=convert_time(time[0]))
+            end = Q(timetable__end__lt=convert_time(time[1]))
+            if result is None:
+                result = base.exclude(start & end)
+            else:
+                result.union(base.exclude(start & end), all=True)
         else:
             # Time query contains full condition: filters with day and timetable.
-            day = Q(timetable__day=days[time[0]])
-            start = Q(timetable__start__gte=convert_time(time[1]))
-            end = Q(timetable__end__lte=convert_time(time[2]))
-            result = result.exclude(day & start & end)
+            if result is None:
+                result = filter_lecture_time(base, days[time[0]], convert_time(time[1]), convert_time(time[2]))
+            else:
+                result.union(
+                    filter_lecture_time(base, days[time[0]], convert_time(time[1]), convert_time(time[2])))
 
+    return result
+
+
+def filter_selected(queryset, name, value):
+    """
+    Filter a queryset with a lecture code.
+    """
+    query = [x.strip() for x in value.split(',')]
+    base = queryset
+    result = None
+
+    for code in query:
+        # Filter out lectures that has different code with our query.
+        if result is None:
+            result = base.filter(code=code)
+        else:
+            result.union(base.filter(code=code), all=True)
+
+    # TODO: Distinct all timetables in result queryset.
     return result
 
 
@@ -122,7 +156,7 @@ class LectureSearchAPIView(ListAPIView):
 
 class LectureQueryFilter(filters.FilterSet):
     fixed = filters.CharFilter(field_name='fixed', method=filter_lecture)
-    selected = filters.CharFilter(field_name='selected', method='filter_selected')
+    selected = filters.CharFilter(field_name='selected', method=filter_selected)
     timetable = filters.CharFilter(field_name='timetable', method=filter_timetable)
 
     class Meta:
@@ -132,9 +166,6 @@ class LectureQueryFilter(filters.FilterSet):
             'selected',
             'timetable',
         )
-
-    def filter_selected(self, queryset, name, value):
-        return queryset
 
 
 class LectureQueryAPIView(ListAPIView):
