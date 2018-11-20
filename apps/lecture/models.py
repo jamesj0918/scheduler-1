@@ -196,30 +196,30 @@ class Lecture(models.Model):
     for lang_choice in LANGUAGE_TYPE.items():
         LANGUAGE_CHOICE_SET.append((lang_choice[1], lang_choice[0]))
 
-    code = models.CharField(_('lecture id'), max_length=16)
+    code = models.CharField(_('lecture id'), db_index=True, max_length=16)
     division = models.CharField(_('division'), max_length=8, default=1)
-    title = models.CharField(_('title'), max_length=64)
+    title = models.CharField(_('title'), db_index=True, max_length=64)
     type = models.IntegerField(_('lecture type'),
                                null=True, blank=True, choices=LECTURE_CHOICE_SET, default=LECTURE_REQUIRED)
     grade = models.IntegerField(_('grade'), default=1, null=True, blank=True)
-    point = models.FloatField(_('point'), default=1.0, null=True, blank=True)
+    point = models.FloatField(_('point'), db_index=True, default=1.0, null=True, blank=True)
     language = models.IntegerField(_('language'),
                                    null=True, blank=True, choices=LANGUAGE_CHOICE_SET, default=LANGUAGE_KOR)
 
     category = models.ManyToManyField(
-        Category, verbose_name=_('category'), related_name='lectures')
+        Category, verbose_name=_('category'), db_index=True, related_name='lectures')
     subcategory = models.ManyToManyField(
-        Subcategory, verbose_name=_('subcategory'), related_name='lectures')
+        Subcategory, verbose_name=_('subcategory'), db_index=True, related_name='lectures')
 
     department = models.ForeignKey(
-        Department, verbose_name=_('department'), on_delete=models.CASCADE, related_name='lectures')
+        Department, verbose_name=_('department'), db_index=True, on_delete=models.CASCADE, related_name='lectures')
     # target_department = models.ForeignKey(
     #     Department, verbose_name=_('target department'), on_delete=models.CASCADE, related_name='target_lectures')
     origin_department = models.ForeignKey(
         Department, verbose_name=_('origin department'), on_delete=models.CASCADE, related_name='origin_lectures')
 
-    classroom = models.CharField(_('classroom'), null=True, blank=True, max_length=16)
-    professor = models.CharField(_('professor'), null=True, blank=True, max_length=32)
+    classroom = models.CharField(_('classroom'), db_index=True, null=True, blank=True, max_length=16)
+    professor = models.CharField(_('professor'), db_index=True, null=True, blank=True, max_length=32)
 
     def __str__(self):
         return self.title
