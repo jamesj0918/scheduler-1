@@ -26,6 +26,7 @@ class LectureSerializer(serializers.ModelSerializer):
         fields = (
             'id',
             'code',
+            'division',
             'title',
             'point',
             'category',
