@@ -176,6 +176,7 @@ class Subcategory(models.Model):
     get_number_of_lectures_in_subcategory.short_description = 'Lectures in Subcategory'
 
 
+# TODO: Refactor lecture constants and language constants to separate classes.
 class Lecture(models.Model):
     """
     A class which represents a model of lecture.
