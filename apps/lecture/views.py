@@ -16,12 +16,12 @@ def convert_time(time):
 
 
 def filter_lecture_time(queryset, start, end, day=None):
-    # query for 'start <= time <= end'
-    start_gte = Q(timetable__start__gt=start)
+    # start query for 'start <= time < end'
+    start_gte = Q(timetable__start__gte=start)
     start_lte = Q(timetable__start__lt=end)
-    # query for 'end >= time >= start'
+    # end query for 'start < time <= end'
     end_gte = Q(timetable__end__gt=start)
-    end_lte = Q(timetable__end__lt=end)
+    end_lte = Q(timetable__end__lte=end)
 
     if day is None:
         return queryset.exclude((start_gte & start_lte) | (end_gte & end_lte))
@@ -142,7 +142,7 @@ class LectureSearchAPIView(ListAPIView):
     Search a lecture with URL parameters. Returns list of lectures.
     """
     serializer_class = LectureSerializer
-    queryset = Lecture.objects.prefetch_related('timetable').all()
+    queryset = Lecture.objects.prefetch_related('timetable')
     filter_backends = (filters.DjangoFilterBackend,)
     filterset_class = LectureSearchFilter
 
@@ -159,16 +159,17 @@ class LectureSearchAPIView(ListAPIView):
 
 
 class LectureQueryFilter(filters.FilterSet):
+    timetable = filters.CharFilter(field_name='timetable', method=filter_timetable)
     fixed = filters.CharFilter(field_name='fixed', method=filter_lecture)
     selected = filters.CharFilter(field_name='selected', method=filter_selected)
-    timetable = filters.CharFilter(field_name='timetable', method=filter_timetable)
 
     class Meta:
         model = Lecture
         fields = (
+            # NOTE: Order of this list is IMPORTANT - timetable always comes first.
+            'timetable',
             'fixed',
             'selected',
-            'timetable',
         )
 
 
@@ -177,7 +178,7 @@ class LectureQueryAPIView(ListAPIView):
     Query a lectures with given URL parameters. Returns list of all the possible lectures.
     """
     serializer_class = LectureSerializer
-    queryset = Lecture.objects.prefetch_related('timetable').all()
+    queryset = Lecture.objects.prefetch_related('timetable').order_by('id')
     filter_backends = (filters.DjangoFilterBackend,)
     filterset_class = LectureQueryFilter
 
