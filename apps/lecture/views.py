@@ -66,8 +66,8 @@ def filter_timetable(queryset, name, value):
                 result.union(base.exclude(timetable__day=days[time[0]]), all=True)
         elif len(time) == 2:
             # Time query only contains two arguments: filters whole timetable.
-            start = Q(timetable__start__gt=convert_time(time[0]))
-            end = Q(timetable__end__lt=convert_time(time[1]))
+            start = Q(timetable__start__gte=convert_time(time[0]))
+            end = Q(timetable__end__lte=convert_time(time[1]))
             if result is None:
                 result = base.exclude(start & end)
             else:
@@ -78,7 +78,7 @@ def filter_timetable(queryset, name, value):
                 result = filter_lecture_time(base, days[time[0]], convert_time(time[1]), convert_time(time[2]))
             else:
                 result.union(
-                    filter_lecture_time(base, days[time[0]], convert_time(time[1]), convert_time(time[2])))
+                    filter_lecture_time(base, days[time[0]], convert_time(time[1]), convert_time(time[2])), all=True)
 
     return result
 
@@ -143,7 +143,7 @@ class LectureSearchAPIView(ListAPIView):
     filterset_class = LectureSearchFilter
 
     def list(self, request, *args, **kwargs):
-        lectures = self.filter_queryset(self.get_queryset())
+        lectures = self.filter_queryset(self.get_queryset().order_by('id'))
         page = self.paginate_queryset(lectures)
 
         if page is not None:
@@ -178,7 +178,7 @@ class LectureQueryAPIView(ListAPIView):
     filterset_class = LectureQueryFilter
 
     def list(self, request, *args, **kwargs):
-        lectures = self.filter_queryset(self.get_queryset())
+        lectures = self.filter_queryset(self.get_queryset().order_by('id'))
         page = self.paginate_queryset(lectures)
 
         if page is not None:
