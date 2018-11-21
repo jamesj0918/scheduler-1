@@ -55,6 +55,15 @@ class Category(models.Model):
     def __str__(self):
         return self.get_category_display()
 
+    def get_number_of_lectures_in_category(self):
+        """
+        Get a number of lectures in given category.
+        :return: A number of every lectures in category.
+        """
+        return Lecture.objects.filter(category=self).count()
+
+    get_number_of_lectures_in_category.short_description = 'Lectures in Category'
+
 
 class Subcategory(models.Model):
     NONE = 0
@@ -156,6 +165,15 @@ class Subcategory(models.Model):
 
     def __str__(self):
         return self.get_subcategory_display()
+
+    def get_number_of_lectures_in_subcategory(self):
+        """
+        Get a number of lectures in given subcategory.
+        :return: A number of every lectures in subcategory.
+        """
+        return Lecture.objects.filter(subcategory=self).count()
+
+    get_number_of_lectures_in_subcategory.short_description = 'Lectures in Subcategory'
 
 
 class Lecture(models.Model):

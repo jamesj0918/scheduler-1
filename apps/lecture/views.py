@@ -6,7 +6,7 @@ from rest_framework.response import Response
 from rest_framework import status
 
 from .models import Lecture, LectureTime, Category, Subcategory
-from .serializers import LectureSerializer
+from .serializers import LectureSerializer, CategorySerializer, SubcategorySerializer
 
 
 def convert_time(time):
@@ -187,3 +187,13 @@ class LectureQueryAPIView(ListAPIView):
 
         serializer = self.get_serializer(lectures, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
+
+
+class CategoryListAPIView(ListAPIView):
+    serializer_class = CategorySerializer
+    queryset = Category.objects.all()
+
+
+class SubcategoryListAPIView(ListAPIView):
+    serializer_class = SubcategorySerializer
+    queryset = Subcategory.objects.all()
