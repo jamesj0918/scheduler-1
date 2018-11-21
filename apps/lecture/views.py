@@ -6,7 +6,7 @@ from rest_framework.response import Response
 from rest_framework import status
 
 from .models import Lecture, LectureTime, Category, Subcategory
-from .serializers import LectureSerializer
+from .serializers import LectureSerializer, CategorySerializer, SubcategorySerializer
 
 
 def convert_time(time):
@@ -15,11 +15,17 @@ def convert_time(time):
     return hours + ':' + minutes
 
 
-def filter_lecture_time(queryset, day, start, end):
-    day_filter = Q(timetable__day=day)
-    start_filter = Q(timetable__start__gte=start)
-    end_filter = Q(timetable__end__lte=end)
-    return queryset.exclude(day_filter & start_filter & end_filter)
+def filter_lecture_time(queryset, start, end, day=None):
+    # query for 'start <= time <= end'
+    start_gte = Q(timetable__start__gt=start)
+    start_lte = Q(timetable__start__lt=end)
+    # query for 'end >= time >= start'
+    end_gte = Q(timetable__end__gt=start)
+    end_lte = Q(timetable__end__lt=end)
+
+    if day is None:
+        return queryset.exclude((start_gte & start_lte) | (end_gte & end_lte))
+    return queryset.exclude(Q(timetable__day=day) & ((start_gte & start_lte) | (end_gte & end_lte)))
 
 
 def filter_lecture(queryset, name, value):
@@ -34,9 +40,9 @@ def filter_lecture(queryset, name, value):
         times = LectureTime.objects.filter(lecture=uuid)
         for time in times:
             if result is None:
-                result = filter_lecture_time(base, time.day, time.start, time.end)
+                result = filter_lecture_time(base, time.start, time.end, day=time.day)
             else:
-                result.union(filter_lecture_time(base, time.day, time.start, time.end), all=True)
+                result.union(filter_lecture_time(base, time.start, time.end, day=time.day))
 
     return result
 
@@ -63,22 +69,20 @@ def filter_timetable(queryset, name, value):
             if result is None:
                 result = base.exclude(timetable__day=days[time[0]])
             else:
-                result.union(base.exclude(timetable__day=days[time[0]]), all=True)
+                result = result.union(base.exclude(timetable__day=days[time[0]]))
         elif len(time) == 2:
             # Time query only contains two arguments: filters whole timetable.
-            start = Q(timetable__start__gt=convert_time(time[0]))
-            end = Q(timetable__end__lt=convert_time(time[1]))
             if result is None:
-                result = base.exclude(start & end)
+                result = filter_lecture_time(base, convert_time(time[0]), convert_time(time[1]))
             else:
-                result.union(base.exclude(start & end), all=True)
+                result = result.union(filter_lecture_time(base, convert_time(time[0]), convert_time(time[1])))
         else:
             # Time query contains full condition: filters with day and timetable.
             if result is None:
-                result = filter_lecture_time(base, days[time[0]], convert_time(time[1]), convert_time(time[2]))
+                result = filter_lecture_time(base, convert_time(time[1]), convert_time(time[2]), day=days[time[0]])
             else:
-                result.union(
-                    filter_lecture_time(base, days[time[0]], convert_time(time[1]), convert_time(time[2])))
+                result = result.union(
+                    filter_lecture_time(base, convert_time(time[1]), convert_time(time[2])), day=days[time[0]])
 
     return result
 
@@ -96,7 +100,7 @@ def filter_selected(queryset, name, value):
         if result is None:
             result = base.filter(code=code)
         else:
-            result.union(base.filter(code=code), all=True)
+            result = result.union(base.filter(code=code))
 
     # TODO: Distinct all timetables in result queryset.
     return result
@@ -187,3 +191,13 @@ class LectureQueryAPIView(ListAPIView):
 
         serializer = self.get_serializer(lectures, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
+
+
+class CategoryListAPIView(ListAPIView):
+    serializer_class = CategorySerializer
+    queryset = Category.objects.all()
+
+
+class SubcategoryListAPIView(ListAPIView):
+    serializer_class = SubcategorySerializer
+    queryset = Subcategory.objects.all()
