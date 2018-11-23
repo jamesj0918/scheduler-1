@@ -84,14 +84,14 @@ class Subcategory(models.Model):
     NEWS = 12
     # MILITARY
     # SCIENCE
-    MACHINARY = 13
+    MACHINERY = 13
     CONSTRUCT = 14
     PHYSICS = 15
     BIOLOGY = 16
     MATHEMATICS = 17
     ASTRONOMY = 18
     CHEMISTRY = 19
-    COMPUTRE = 20
+    COMPUTER = 20
     # ART
     DANCE = 21
     ART = 22
@@ -109,7 +109,7 @@ class Subcategory(models.Model):
     ESSAY = 32
     LICENSE = 33
     EXAM = 34
-    ENLIGHTMENT = 35
+    ENLIGHTENMENT = 35
     # HOBBY
     LIVING = 36
     SPORTS = 37
@@ -129,14 +129,14 @@ class Subcategory(models.Model):
         '법': LAW,
         '사회학': SOCIETY,
         '언론/신문/방송': NEWS,
-        '기계/전기/전자': MACHINARY,
+        '기계/전기/전자': MACHINERY,
         '도시/토목/건설': CONSTRUCT,
         '물리학': PHYSICS,
         '생물학': BIOLOGY,
         '수학': MATHEMATICS,
         '천문/지구과학': ASTRONOMY,
         '화학': CHEMISTRY,
-        '컴퓨터': COMPUTRE,
+        '컴퓨터': COMPUTER,
         '무용': DANCE,
         '미술': ART,
         '음악': MUSIC,
@@ -151,7 +151,7 @@ class Subcategory(models.Model):
         '논술/면접대비': ESSAY,
         '공무원/자격증': LICENSE,
         '고시': EXAM,
-        '자기능력계발': ENLIGHTMENT,
+        '자기능력계발': ENLIGHTENMENT,
         '리빙': LIVING,
         '레저/스포츠': SPORTS,
         '여성/패션': FASHION
