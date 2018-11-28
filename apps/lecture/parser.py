@@ -11,7 +11,7 @@ def create_parser(path, worksheet):
     return ws
 
 
-def parse_lecture_data():
+def parse_lecture_data(use_log):
     """
     Parse the lecture.xlsx file and create a lecture database.
     """
@@ -88,6 +88,9 @@ def parse_lecture_data():
                         LectureTime.objects.get_or_create(
                             lecture=lecture, start=times[0], end=times[1], day=days)
                     days_cache.clear()
+
+        if use_log is True:
+            print(title + '(' + str(lecture.id) + ' | ' + code + ')')
 
 
 def categorize_lecture(title):

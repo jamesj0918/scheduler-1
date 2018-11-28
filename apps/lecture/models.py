@@ -266,7 +266,7 @@ class LectureTime(models.Model):
     for time_choice in DAYS.items():
         CHOICE_SET.append((time_choice[1], time_choice[0]))
 
+    lecture = models.ForeignKey(Lecture, on_delete=models.CASCADE, related_name='timetable')
     day = models.IntegerField(choices=CHOICE_SET, default=MONDAY)
     start = models.TimeField()
     end = models.TimeField()
-    lecture = models.ForeignKey(Lecture, on_delete=models.CASCADE, related_name='timetable')
