@@ -72,19 +72,19 @@ def filter_timetable(queryset, name, value):
             if result is None:
                 result = base.exclude(timetable__day=days[time[0]])
             else:
-                result = result.union(base.exclude(timetable__day=days[time[0]]))
+                result = result.intersection(base.exclude(timetable__day=days[time[0]]))
         elif len(time) == 2:
             # Time query only contains two arguments: filters whole timetable.
             if result is None:
                 result = filter_lecture_time(base, convert_time(time[0]), convert_time(time[1]))
             else:
-                result = result.union(filter_lecture_time(base, convert_time(time[0]), convert_time(time[1])))
+                result = result.intersection(filter_lecture_time(base, convert_time(time[0]), convert_time(time[1])))
         else:
             # Time query contains full condition: filters with day and timetable.
             if result is None:
                 result = filter_lecture_time(base, convert_time(time[1]), convert_time(time[2]), day=days[time[0]])
             else:
-                result = result.union(
+                result = result.intersection(
                     filter_lecture_time(base, convert_time(time[1]), convert_time(time[2]), day=days[time[0]]))
 
     return result
