@@ -85,7 +85,7 @@ def filter_timetable(queryset, name, value):
                 result = filter_lecture_time(base, convert_time(time[1]), convert_time(time[2]), day=days[time[0]])
             else:
                 result = result.union(
-                    filter_lecture_time(base, convert_time(time[1]), convert_time(time[2])), day=days[time[0]])
+                    filter_lecture_time(base, convert_time(time[1]), convert_time(time[2]), day=days[time[0]]))
 
     return result
 
