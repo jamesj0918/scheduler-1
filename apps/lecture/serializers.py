@@ -63,7 +63,7 @@ class LectureSerializer(serializers.ModelSerializer):
 
 
 class DepartmentSerializer(serializers.ModelSerializer):
-    count = serializers.IntegerField(source='get_number_of_lecture_in_department', read_only=True)
+    count = serializers.IntegerField(source='get_number_of_lectures_in_department', read_only=True)
 
     class Meta:
         model = Department
