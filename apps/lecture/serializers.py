@@ -1,6 +1,6 @@
 from rest_framework import serializers
 
-from .models import Lecture, LectureTime, Category, Subcategory
+from .models import Lecture, LectureTime, Category, Subcategory, Department
 
 
 class CategorySerializer(serializers.ModelSerializer):
@@ -59,4 +59,15 @@ class LectureSerializer(serializers.ModelSerializer):
             'classroom',
             'professor',
             'timetable',
+        )
+
+
+class DepartmentSerializer(serializers.ModelSerializer):
+    count = serializers.IntegerField(source='get_number_of_lecture_in_department', read_only=True)
+
+    class Meta:
+        model = Department
+        fields = (
+            'title',
+            'count',
         )

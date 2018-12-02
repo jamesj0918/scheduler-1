@@ -8,8 +8,10 @@ from rest_framework.response import Response
 from rest_framework.filters import SearchFilter
 from rest_framework import status
 
-from .models import Lecture, LectureTime, Category, Subcategory
-from .serializers import LectureSerializer, CategorySerializer, SubcategorySerializer
+from .models import Lecture, LectureTime, Category, Subcategory, Department
+from .serializers import (
+    LectureSerializer, CategorySerializer, SubcategorySerializer, DepartmentSerializer
+)
 
 
 def convert_time(time):
@@ -72,20 +74,19 @@ def filter_timetable(queryset, name, value):
             if result is None:
                 result = base.exclude(timetable__day=days[time[0]])
             else:
-                result = result.union(base.exclude(timetable__day=days[time[0]]))
+                result = result.intersection(base.exclude(timetable__day=days[time[0]]))
         elif len(time) == 2:
-            # Time query only contains two arguments: filters whole timetable.
             if result is None:
                 result = filter_lecture_time(base, convert_time(time[0]), convert_time(time[1]))
             else:
-                result = result.union(filter_lecture_time(base, convert_time(time[0]), convert_time(time[1])))
+                result = result.intersection(filter_lecture_time(base, convert_time(time[0]), convert_time(time[1])))
         else:
             # Time query contains full condition: filters with day and timetable.
             if result is None:
                 result = filter_lecture_time(base, convert_time(time[1]), convert_time(time[2]), day=days[time[0]])
             else:
-                result = result.union(
-                    filter_lecture_time(base, convert_time(time[1]), convert_time(time[2])), day=days[time[0]])
+                result = result.intersection(
+                    filter_lecture_time(base, convert_time(time[1]), convert_time(time[2]), day=days[time[0]]))
 
     return result
 
@@ -105,7 +106,6 @@ def filter_selected(queryset, name, value):
         else:
             result = result.union(base.filter(code=code))
 
-    # TODO: Distinct all timetables in result queryset.
     return result
 
 
@@ -145,7 +145,7 @@ class LectureSearchAPIView(ListAPIView):
     Search a lecture with URL parameters. Returns list of lectures.
     """
     serializer_class = LectureSerializer
-    queryset = Lecture.objects.prefetch_related('timetable')
+    queryset = Lecture.objects.prefetch_related('timetable').order_by('code')
     filter_backends = (SearchFilter, filters.DjangoFilterBackend,)
     filterset_class = LectureSearchFilter
     search_fields = ('title', 'department__title', 'professor',)
@@ -182,7 +182,7 @@ class LectureQueryAPIView(ListAPIView):
     Query a lectures with given URL parameters. Returns list of all the possible lectures.
     """
     serializer_class = LectureSerializer
-    queryset = Lecture.objects.prefetch_related('timetable')
+    queryset = Lecture.objects.prefetch_related('timetable').order_by('code')
     filter_backends = (filters.DjangoFilterBackend,)
     filterset_class = LectureQueryFilter
 
@@ -221,12 +221,17 @@ class LectureQueryAPIView(ListAPIView):
         result = [x + fixed for x in result]
         return result
 
+    def order_lectures_with_rating(self, lectures):
+        pass
+
     def list(self, request, *args, **kwargs):
         lectures = self.filter_queryset(self.get_queryset())
         # NOTE: Without this filtering method, generate_possible_lectures won't work as queries are too complex.
         # You should never remove this unless you 100% sure about what you're doing.
         result_list = self.generate_possible_lectures(Lecture.objects.filter(pk__in=[x.id for x in list(lectures)]))
+        # ordered_result = self.order_lectures_with_rating(result_list)
 
+        # TODO: Make .list() to use pagination class
         result = list()
         for entry in result_list:
             sublist = list()
@@ -238,11 +243,49 @@ class LectureQueryAPIView(ListAPIView):
         return Response(result, status=status.HTTP_200_OK)
 
 
+class UniqueLectureListAPIView(ListAPIView):
+    serializer_class = LectureSerializer
+    queryset = Lecture.objects.order_by('code').distinct('code')
+    filter_backends = (SearchFilter, filters.DjangoFilterBackend,)
+    filterset_class = LectureSearchFilter
+    search_fields = ('title', 'department__title', 'professor',)
+
+    def list(self, request, *args, **kwargs):
+        lectures = self.filter_queryset(self.get_queryset())
+        page = self.paginate_queryset(lectures)
+
+        if page is not None:
+            serializer = self.get_serializer(page, many=True)
+            return self.get_paginated_response(serializer.data)
+
+        serializer = self.get_serializer(lectures, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+
 class CategoryListAPIView(ListAPIView):
     serializer_class = CategorySerializer
     queryset = Category.objects.all()
+    pagination_class = None
 
 
 class SubcategoryListAPIView(ListAPIView):
     serializer_class = SubcategorySerializer
     queryset = Subcategory.objects.all()
+    pagination_class = None
+
+
+class DepartmentListAPIView(ListAPIView):
+    serializer_class = DepartmentSerializer
+    queryset = Department.objects.all()
+    pagination_class = None
+
+    def list(self, request, *args, **kwargs):
+        departments = self.filter_queryset(self.get_queryset())
+        page = self.paginate_queryset(departments)
+
+        if page is not None:
+            serializer = self.get_serializer(page, many=True)
+            return self.get_paginated_response(serializer.data)
+
+        serializer = self.get_serializer(departments, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
