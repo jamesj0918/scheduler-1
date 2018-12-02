@@ -13,5 +13,5 @@ urlpatterns = [
     path('lectures/unique/', UniqueLectureListAPIView.as_view(), name='lecture-unique'),
     path('category/', CategoryListAPIView.as_view(), name='category-list'),
     path('subcategory/', SubcategoryListAPIView.as_view(), name='subcategory-list'),
-    path('departments/', DepartmentListAPIView.as_view(), name='department-list'),
+    path('department/', DepartmentListAPIView.as_view(), name='department-list'),
 ]
