@@ -9,7 +9,7 @@ A lecture scheduler for university students. Built with Django 2.1.
 
 ## API Endpoints
 ### Get a list of lectures
-`GET /api/lectures/search/`
+* `GET /api/lectures/search/`
 
 |Name|Type|Description|
 |---|---|---|
@@ -27,7 +27,7 @@ A lecture scheduler for university students. Built with Django 2.1.
 |`timetable`|`list`|List of timetables. Format of `timetable` is `day:start:end`. (For example, Monday, Starts at 13:00, Ends at 15:00 would be `mon:1300:1500`)
 
 ### Get a list of possible lectures
-`GET /api/lectures/query/`
+* `GET /api/lectures/query/`
 
 |Name|Type|Description|
 |---|---|---|
@@ -36,17 +36,17 @@ A lecture scheduler for university students. Built with Django 2.1.
 |`selected`|`string`|Desired lecture that used for generating combination. Use the `code`, and comma for more than one filters. Note that more than 3 selected lectures would results huge performance decrease for now, due to slow server speed.|
 
 ### Get a list of unique lectures
-`GET /api/lectures/unique/`
+* `GET /api/lectures/unique/`
 > NOTE: You can use same parameters from `/api/lectures/search/` here.
 
 ### Get a list of categories
-`GET /api/category/`
+* `GET /api/category/`
 
 ### Get a list of sub-categories
-`GET /api/subcategory/`
+* `GET /api/subcategory/`
 
 ### Get a list of departments
-`GET /api/department/`
+* `GET /api/department/`
 
 ## License
 Licensed under the [MIT License](https://github.com/pellstrike/scheduler/blob/master/LICENSE.md).
