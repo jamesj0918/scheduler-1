@@ -13,6 +13,7 @@ A lecture scheduler for university students. Built with Django 2.1.
 
 |Name|Type|Description|
 |---|---|---|
+|`search`|`string`|Parameter for search against: `title`, `department`, `professor`.|
 |`page`|`int`|Page of the lecture list. Single page contains 100 lectures by default.|
 |`id`|`int`|Unique identifier of the lecture. Not to be confused with `code`.|
 |`code`|`string`|Integer-labeled code of the lecture. Multiple lectures can have a same `code`.|
@@ -34,11 +35,18 @@ A lecture scheduler for university students. Built with Django 2.1.
 |`fixed`|`string`|Fixed lecture to filter. Use the `id`, and comma for more than one filters. Results will be contain these fixed lectures.|
 |`selected`|`string`|Desired lecture that used for generating combination. Use the `code`, and comma for more than one filters. Note that more than 3 selected lectures would results huge performance decrease for now, due to slow server speed.|
 
+### Get a list of unique lectures
+`GET /api/lectures/unique/`
+> NOTE: You can use same parameters from `/api/lectures/search/` here.
+
 ### Get a list of categories
-`GET /api/lectures/category/`
+`GET /api/category/`
 
 ### Get a list of sub-categories
-`GET /api/lectures/subcategory/`
+`GET /api/subcategory/`
+
+### Get a list of departments
+`GET /api/department/`
 
 ## License
 Licensed under the [MIT License](https://github.com/pellstrike/scheduler/blob/master/LICENSE.md).
