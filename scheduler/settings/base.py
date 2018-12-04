@@ -83,7 +83,7 @@ WSGI_APPLICATION = 'scheduler.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'db',
+        'NAME': 'scheduler',
         'USER': 'pellstrike',
         'PASSWORD': '',
         'HOST': 'localhost',
