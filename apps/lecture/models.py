@@ -181,6 +181,7 @@ class Lecture(models.Model):
     """
     A class which represents a model of lecture.
     """
+
     LECTURE_REQUIRED = 0
     LECTURE_REQUIRED_OPTIONAL = 1
     LECTURE_OPTIONAL_EXTRA = 2
@@ -237,6 +238,7 @@ class Lecture(models.Model):
     origin_department = models.ForeignKey(
         Department, verbose_name=_('origin department'), on_delete=models.CASCADE, related_name='origin_lectures')
 
+    place = models.IntegerField(_('place id'), db_index=True, null=True, blank=True, default=0)
     classroom = models.CharField(_('classroom'), db_index=True, null=True, blank=True, max_length=16)
     professor = models.CharField(_('professor'), db_index=True, null=True, blank=True, max_length=32)
 
@@ -248,6 +250,50 @@ class LectureTime(models.Model):
     """
     A class which represents a time of the lecture.
     """
+    PLACE_TYPE = {
+        '': -1,
+        '대': 0,
+        '모': 1,
+        '집': 2,
+        '학': 3,
+        '군': 4,
+        'L': 5,     # Lab
+        '세': 6,
+        '광': 7,
+        '애': 8,
+        '진': 9,
+        '용': 10,
+        '동': 11,
+        '우': 12,
+        '율': 13,
+        '충': 14,
+        '영': 15,
+        '다': 16,
+        '이': 17,
+        '무': 18,
+    }
+
+    PLACE_DISTANCE = [
+        [0],
+        [4, 0],
+        [2, 3, 0],
+        [3, 5, 3, 0],
+        [4, 5, 2, 3, 0],
+        [6, 7, 3, 2, 2, 0],
+        [8, 8, 5, 5, 2, 3, 0],
+        [9, 9, 6, 5, 3, 3, 1, 0],
+        [11, 11, 8, 7, 5, 5, 3, 2, 0],
+        [12, 12, 9, 8, 6, 6, 4, 3, 1, 0],
+        [14, 14, 11, 10, 8, 5, 5, 4, 2, 2, 0],
+        [16, 16, 13, 12, 10, 7, 7, 5, 3, 3, 1, 0],
+        [16, 16, 13, 12, 10, 7, 7, 5, 3, 3, 1, 2, 0],
+        [17, 17, 14, 13, 11, 8, 8, 6, 4, 4, 2, 2, 1, 0],
+        [18, 18, 15, 14, 12, 9, 9, 7, 5, 5, 3, 4, 2, 1, 0],
+        [18, 18, 15, 14, 12, 9, 9, 7, 5, 5, 3, 2, 2, 1, 2, 0],
+        [9, 9, 6, 6, 3, 4, 2, 3, 4, 5, 5, 6, 8, 9, 9, 10, 0],
+        [13, 14, 12, 12, 11, 10, 10, 9, 8, 7, 6, 6, 5, 5, 4, 6, 8, 0],
+    ]
+
     MONDAY = 0
     TUESDAY = 1
     WEDNESDAY = 2
@@ -267,6 +313,7 @@ class LectureTime(models.Model):
         CHOICE_SET.append((time_choice[1], time_choice[0]))
 
     lecture = models.ForeignKey(Lecture, on_delete=models.CASCADE, related_name='timetable')
+    place = models.IntegerField(db_index=True, null=True, blank=True, default=-1)
     day = models.IntegerField(choices=CHOICE_SET, default=MONDAY)
     start = models.TimeField()
     end = models.TimeField()

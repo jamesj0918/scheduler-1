@@ -72,22 +72,41 @@ def parse_lecture_data(use_log):
         if rawtimes is None:
             continue
 
-        # split rawtime with comma
+        # split time with comma
         rawtimes = rawtimes.split(',')
-        for rawtime in rawtimes:
-            rawtime = rawtime.split()
-            days_cache = []
-            for token in rawtime:
-                # add all days before timerange into days_cache
-                if token in LectureTime.DAYS:
-                    days_cache.append(LectureTime.DAYS[token])
-                # create time range with days
-                elif len(token) > 2:
-                    times = token.split('~')
-                    for days in days_cache:
-                        LectureTime.objects.get_or_create(
-                            lecture=lecture, start=times[0], end=times[1], day=days)
-                    days_cache.clear()
+        if classroom is not None:
+            places = classroom.split(',')
+            for (rawtime, place) in zip(rawtimes, places):
+                rawtime = rawtime.split()
+                place = LectureTime.PLACE_TYPE.get(place.strip()[0], None)
+
+                days_cache = []
+                for token in rawtime:
+                    # add all days before time range into days_cache
+                    if token in LectureTime.DAYS:
+                        days_cache.append(LectureTime.DAYS[token])
+                    # create time range with days
+                    elif len(token) > 2:
+                        times = token.split('~')
+                        for days in days_cache:
+                            LectureTime.objects.get_or_create(
+                                lecture=lecture, place=place, start=times[0], end=times[1], day=days)
+                        days_cache.clear()
+        else:
+            for rawtime in rawtimes:
+                rawtime = rawtime.split()
+                days_cache = []
+                for token in rawtime:
+                    # add all days before time range into days_cache
+                    if token in LectureTime.DAYS:
+                        days_cache.append(LectureTime.DAYS[token])
+                    # create time range with days
+                    elif len(token) > 2:
+                        times = token.split('~')
+                        for days in days_cache:
+                            LectureTime.objects.get_or_create(
+                                lecture=lecture, place=None, start=times[0], end=times[1], day=days)
+                        days_cache.clear()
 
         if use_log is True:
             print(title + '(' + str(lecture.id) + ' | ' + code + ')')
