@@ -238,7 +238,6 @@ class Lecture(models.Model):
     origin_department = models.ForeignKey(
         Department, verbose_name=_('origin department'), on_delete=models.CASCADE, related_name='origin_lectures')
 
-    place = models.IntegerField(_('place id'), db_index=True, null=True, blank=True, default=0)
     classroom = models.CharField(_('classroom'), db_index=True, null=True, blank=True, max_length=16)
     professor = models.CharField(_('professor'), db_index=True, null=True, blank=True, max_length=32)
 
