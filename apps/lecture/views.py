@@ -1,4 +1,5 @@
 import itertools
+from datetime import time
 
 from django.db.models import Q
 from django_filters import rest_framework as filters
@@ -14,23 +15,19 @@ from .serializers import (
 )
 
 
-def convert_time(time):
-    hours = time[:2]
-    minutes = time[2:4]
-    return hours + ':' + minutes
+def convert_time(asdf):
+    hours = int(asdf[:2])
+    minutes = int(asdf[2:4])
+    return time(hour=hours, minute=minutes)
 
 
 def filter_lecture_time(queryset, start, end, day=None):
-    # start query for 'start <= start_time < end'
-    start_gte = Q(timetable__start__gte=start)
-    start_lt = Q(timetable__start__lt=end)
-    # end query for 'start < end_time <= end'
-    end_gt = Q(timetable__end__gt=start)
-    end_lte = Q(timetable__end__lte=end)
+    start = Q(timetable__end__lte=start)
+    end = Q(timetable__start__gte=end)
 
     if day is None:
-        return queryset.exclude((start_gte & start_lt) | (end_gt & end_lte))
-    return queryset.exclude(Q(timetable__day=day) & ((start_gte & start_lt) | (end_gt & end_lte)))
+        return queryset.filter(start | end)
+    return queryset.filter(Q(timetable__day=day) & (start | end))
 
 
 def filter_lecture(queryset, name, value):
@@ -41,7 +38,6 @@ def filter_lecture(queryset, name, value):
     base = queryset
     result = None
 
-    print('.filter_lecture(): ' + str(base.filter(id=1606).exists()))
     for pk in query:
         times = LectureTime.objects.filter(lecture__pk=pk)
         for time in times:
@@ -50,7 +46,6 @@ def filter_lecture(queryset, name, value):
             else:
                 result = result.intersection(filter_lecture_time(base, time.start, time.end, day=time.day))
 
-    print('.filter_lecture(): ' + str(result.filter(id=1606).exists()))
     print('.filter_lecture() count: ' + str(result.count()))
     return result
 
@@ -70,7 +65,6 @@ def filter_timetable(queryset, name, value):
         'fri': 4
     }
 
-    print('.filter_timetable(): ' + str(base.filter(id=1606).exists()))
     for time in query:
         time = time.split(':')
         if len(time) == 1:
@@ -92,7 +86,6 @@ def filter_timetable(queryset, name, value):
                 result = result.intersection(
                     filter_lecture_time(base, convert_time(time[1]), convert_time(time[2]), day=days[time[0]]))
 
-    print('.filter_timetable(): ' + str(result.filter(id=1606).exists()))
     print('.filter_timetable() count: ' + str(result.count()))
     return result
 
@@ -102,18 +95,16 @@ def filter_selected(queryset, name, value):
     Filter a queryset with a lecture code.
     """
     query = [x.strip() for x in value.split(',')]
-    base = queryset
+    base = Lecture.objects.filter(pk__in=[x.id for x in queryset])
     result = None
 
-    print('.filter_selected(): ' + str(base.filter(id=1606).exists()))
     for code in query:
         # Filter out lectures that has different code with our query.
         if result is None:
-            result = base.filter(code=code)
+            result = base.filter(Q(code=code))
         else:
-            result = result.union(base.filter(code=code))
+            result = result.union(base.filter(Q(code=code)))
 
-    print('.filter_selected(): ' + str(result.filter(id=1606).exists()))
     print('.filter_selected() count: ' + str(result.count()))
     return result
 
@@ -195,20 +186,35 @@ class LectureQueryAPIView(ListAPIView):
     filter_backends = (filters.DjangoFilterBackend,)
     filterset_class = LectureQueryFilter
 
-    def generate_possible_lectures(self, filterset):
+    def generate_possible_lectures(self):
         result = []
 
-        selected = self.request.GET.get('selected').split(',')
-        selected = [x.strip() for x in selected]
+        timetable = self.request.GET.get('timetable')
+        if timetable is not None:
+            self.queryset = filter_timetable(self.queryset, None, timetable)
 
-        fixed = self.request.GET.get('fixed').split(',')
-        fixed = [int(x) for x in fixed]
+        fixed = self.request.GET.get('fixed')
+        if fixed is not None:
+            self.queryset = filter_lecture(self.queryset, None, fixed)
+
+        fixed = [int(x) for x in fixed.split(',')]
         fixed = list(Lecture.objects.filter(pk__in=fixed))
 
+        fuck = Lecture.objects.filter(pk__in=[x.id for x in self.queryset.all()]).filter(pk=1606).exists()
+        print('3 ' + str(fuck))
+        selected = self.request.GET.get('selected')
+        if fixed is not None:
+            self.queryset = filter_selected(self.queryset, None, selected)
+        selected = [x.strip() for x in selected.split(',')]
+
         lectures = list()
+        # self.queryset = Lecture.objects.filter(pk__in=[x.id for x in self.queryset])
         for code in selected:
-            lectures.append(list(filterset.filter(code=code)))
+            lectures.append(list(self.queryset.filter(code=code)))
+        for entry in lectures:
+            print([x.id for x in entry])
         lectures = list(itertools.product(*lectures))
+        print(len(lectures))
 
         for lecture in lectures:
             lecture_query = LectureTime.objects.filter(lecture__in=[x.id for x in lecture])
@@ -256,12 +262,9 @@ class LectureQueryAPIView(ListAPIView):
         return result
 
     def list(self, request, *args, **kwargs):
-        lectures = self.filter_queryset(self.get_queryset())
-        print(self.get_queryset().count())
-        print(self.filter_queryset(self.get_queryset()).count())
         # NOTE: Without this filtering method, generate_possible_lectures won't work as queries are too complex.
         # You should never remove this unless you 100% sure about what you're doing.
-        result_list = self.generate_possible_lectures(Lecture.objects.filter(pk__in=[x.id for x in lectures]))
+        result_list = self.generate_possible_lectures()
         # result_list = self.order_lectures_with_rating(result_list)
 
         # TODO: Make .list() to use pagination class
