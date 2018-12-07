@@ -21,10 +21,10 @@ def convert_time(time):
 
 
 def filter_lecture_time(queryset, start, end, day=None):
-    # start query for 'start <= time < end'
+    # start query for 'start <= start_time < end'
     start_gte = Q(timetable__start__gte=start)
     start_lt = Q(timetable__start__lt=end)
-    # end query for 'start < time <= end'
+    # end query for 'start < end_time <= end'
     end_gt = Q(timetable__end__gt=start)
     end_lte = Q(timetable__end__lte=end)
 
@@ -41,14 +41,17 @@ def filter_lecture(queryset, name, value):
     base = queryset
     result = None
 
-    for uuid in query:
-        times = LectureTime.objects.filter(lecture=uuid)
+    print('.filter_lecture(): ' + str(base.filter(id=1606).exists()))
+    for pk in query:
+        times = LectureTime.objects.filter(lecture__pk=pk)
         for time in times:
             if result is None:
                 result = filter_lecture_time(base, time.start, time.end, day=time.day)
             else:
-                result.union(filter_lecture_time(base, time.start, time.end, day=time.day))
+                result = result.intersection(filter_lecture_time(base, time.start, time.end, day=time.day))
 
+    print('.filter_lecture(): ' + str(result.filter(id=1606).exists()))
+    print('.filter_lecture() count: ' + str(result.count()))
     return result
 
 
@@ -67,6 +70,7 @@ def filter_timetable(queryset, name, value):
         'fri': 4
     }
 
+    print('.filter_timetable(): ' + str(base.filter(id=1606).exists()))
     for time in query:
         time = time.split(':')
         if len(time) == 1:
@@ -88,6 +92,8 @@ def filter_timetable(queryset, name, value):
                 result = result.intersection(
                     filter_lecture_time(base, convert_time(time[1]), convert_time(time[2]), day=days[time[0]]))
 
+    print('.filter_timetable(): ' + str(result.filter(id=1606).exists()))
+    print('.filter_timetable() count: ' + str(result.count()))
     return result
 
 
@@ -99,6 +105,7 @@ def filter_selected(queryset, name, value):
     base = queryset
     result = None
 
+    print('.filter_selected(): ' + str(base.filter(id=1606).exists()))
     for code in query:
         # Filter out lectures that has different code with our query.
         if result is None:
@@ -106,6 +113,8 @@ def filter_selected(queryset, name, value):
         else:
             result = result.union(base.filter(code=code))
 
+    print('.filter_selected(): ' + str(result.filter(id=1606).exists()))
+    print('.filter_selected() count: ' + str(result.count()))
     return result
 
 
@@ -222,14 +231,38 @@ class LectureQueryAPIView(ListAPIView):
         return result
 
     def order_lectures_with_rating(self, lectures):
-        pass
+        result = []
+
+        # 1: distance rating
+        for case in lectures:
+            value = 0
+            for day in range(LectureTime.MONDAY, LectureTime.FRIDAY + 1):
+                for i in range(len(case) - 1):
+                    current_time = LectureTime.objects.filter(lecture=case[i]).filter(day=day)
+                    next_time = LectureTime.objects.filter(lecture=case[i + 1]).filter(day=day)
+
+                    if current_time.exists() and next_time.exists():
+                        current_time = current_time.place
+                        next_time = next_time.place
+                        if current_time > next_time:
+                            distance = LectureTime.PLACE_DISTANCE[current_time][next_time]
+                        else:
+                            distance = LectureTime.PLACE_DISTANCE[next_time][current_time]
+                        value += distance
+            result.append([value, case])
+
+        result = sorted(result, key=lambda k: k[0])
+        result = [x.pop(1) for x in result]
+        return result
 
     def list(self, request, *args, **kwargs):
         lectures = self.filter_queryset(self.get_queryset())
+        print(self.get_queryset().count())
+        print(self.filter_queryset(self.get_queryset()).count())
         # NOTE: Without this filtering method, generate_possible_lectures won't work as queries are too complex.
         # You should never remove this unless you 100% sure about what you're doing.
-        result_list = self.generate_possible_lectures(Lecture.objects.filter(pk__in=[x.id for x in list(lectures)]))
-        # ordered_result = self.order_lectures_with_rating(result_list)
+        result_list = self.generate_possible_lectures(Lecture.objects.filter(pk__in=[x.id for x in lectures]))
+        # result_list = self.order_lectures_with_rating(result_list)
 
         # TODO: Make .list() to use pagination class
         result = list()
@@ -248,7 +281,7 @@ class UniqueLectureListAPIView(ListAPIView):
     queryset = Lecture.objects.order_by('code').distinct('code')
     filter_backends = (SearchFilter, filters.DjangoFilterBackend,)
     filterset_class = LectureSearchFilter
-    search_fields = ('title', 'department__title', 'professor',)
+    search_fields = ('title', 'code', 'department__title', 'professor',)
 
     def list(self, request, *args, **kwargs):
         lectures = self.filter_queryset(self.get_queryset())
