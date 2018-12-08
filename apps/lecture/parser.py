@@ -89,7 +89,7 @@ def parse_lecture_data(use_log):
                     elif len(token) > 2:
                         times = token.split('~')
                         for days in days_cache:
-                            LectureTime.objects.get_or_create(
+                            LectureTime.objects.create(
                                 lecture=lecture, place=place, start=times[0], end=times[1], day=days)
                         days_cache.clear()
         else:
@@ -104,7 +104,7 @@ def parse_lecture_data(use_log):
                     elif len(token) > 2:
                         times = token.split('~')
                         for days in days_cache:
-                            LectureTime.objects.get_or_create(
+                            LectureTime.objects.create(
                                 lecture=lecture, place=None, start=times[0], end=times[1], day=days)
                         days_cache.clear()
 

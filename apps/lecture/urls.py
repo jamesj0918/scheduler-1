@@ -1,10 +1,12 @@
 from django.urls import path
 
 from .views import (
-    LectureSearchAPIView, LectureQueryAPIView,
+    LectureSearchAPIView,
     CategoryListAPIView, SubcategoryListAPIView,
     UniqueLectureListAPIView, DepartmentListAPIView,
 )
+
+from .query import LectureQueryAPIView
 
 app_name = 'lecture'
 urlpatterns = [
